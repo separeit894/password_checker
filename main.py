@@ -5,7 +5,6 @@ import itertools
 import string
 import time
 
-
 time_start = int(time.time())
 # Определяем необходимые константы
 LOGON32_LOGON_INTERACTIVE = 2
@@ -17,80 +16,118 @@ username = account  # Замените на ваше имя пользовате
 
 characters = string.digits
 
+
+
+# Добавляем русские буквы
+russian_letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
+
 digits = str(input("Вы хотите использовать числа для подбора: ( Y/n ) "))
-if digits == "Y" or digits =="y" or digits == "Д" or digits == "д":
+if digits == "Y" or digits == "y" or digits == "Д" or digits == "д":
     characters = string.digits
 
-    ascii_letters = str(input("Вы хотите использовать буквы для подбора: ( Y/n ) "))
+    ascii_letters = str(input("Вы хотите использовать латинские буквы для подбора: ( Y/n ) "))
 
-    if ascii_letters == "Y" or ascii_letters =="y" or ascii_letters == "Д" or ascii_letters == "д":
+    if ascii_letters == "Y" or ascii_letters == "y" or ascii_letters == "Д" or ascii_letters == "д":
         characters = string.digits + string.ascii_letters
 
-        punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
 
-        if punctuation == "Y" or punctuation =="y" or punctuation == "Д" or punctuation == "д":
-            characters = string.digits + string.ascii_letters + string.punctuation
+        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
+            characters = string.digits + string.ascii_letters + russian_letters
 
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = string.digits + string.ascii_letters + russian_letters +string.punctuation
+
+        else:
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = string.digits + string.ascii_letters + string.punctuation
     else:
-        print("ок if")
-        punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-        if punctuation == "Y" or punctuation =="y" or punctuation == "Д" or punctuation == "д":
-            characters = string.digits + string.punctuation
+        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
+
+        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
+            characters = string.digits + russian_letters
+
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = string.digits + russian_letters + string.punctuation
         
+        else:
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = string.digits + string.punctuation
 
 else:
-    print("Ок")
-
     ascii_letters = str(input("Вы хотите использовать буквы для подбора: ( Y/n ) "))
-    if ascii_letters == "Y" or ascii_letters =="y" or ascii_letters == "Д" or ascii_letters == "д":
+    if ascii_letters == "Y" or ascii_letters == "y" or ascii_letters == "Д" or ascii_letters == "д":
         characters = string.ascii_letters
 
-        punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-        
-        if punctuation == "Y" or punctuation =="y" or punctuation == "Д" or punctuation == "д":
-            characters = string.ascii_letters + string.punctuation
-        else:
-            print("Ок")
+        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
+
+        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
+            characters = string.ascii_letters + russian_letters
+
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+            
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = string.ascii_letters + russian_letters + string.punctuation
     else:
-        print("Ок")
-        punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-        if punctuation == "Y" or punctuation =="y" or punctuation == "Д" or punctuation == "д":
-            characters = string.punctuation
+        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
+
+        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
+            characters = russian_letters
+
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
+
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = russian_letters + string.punctuation
+        
         else:
-            print("Так как вы ничего не выбрали из вышеперечисленного, то по умолчанию выбран параметр перебора с помощью чисел")
-    
+            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
 
-    # characters =  string.digits + string.ascii_letters + string.punctuation
+            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
+                characters = string.punctuation
 
-repeat = int(input("Сколько элементов в пароле: "))
+
+
+# Начинаем с длины пароля 1
+i = 1
+found = False
 
 try:
-    for password in itertools.product(characters, repeat=repeat):
-        
-        password = "".join(password)
+    while not found:
+        for password in itertools.product(characters, repeat=i):
+            password = "".join(password)
 
-        # Попытка входа в систему
-        token = ctypes.c_void_p()
-        result = ctypes.windll.advapi32.LogonUserA(
-            username.encode('utf-8'),
-            None,  # Укажите домен, если необходимо
-            password.encode('utf-8'),
-            LOGON32_LOGON_INTERACTIVE,
-            LOGON32_PROVIDER_DEFAULT,
-            ctypes.byref(token)
-        )
+            # Попытка входа в систему
+            token = ctypes.c_void_p()
+            result = ctypes.windll.advapi32.LogonUserA(
+                username.encode('utf-8'),
+                None,  # Укажите домен, если необходимо
+                password.encode('utf-8'),
+                LOGON32_LOGON_INTERACTIVE,
+                LOGON32_PROVIDER_DEFAULT,
+                ctypes.byref(token)
+            )
 
-        if result:
-            print("Вход выполнен успешно!", password)
-            # Здесь вы можете использовать токен для выполнения действий от имени пользователя
-            break
-        else:
-            print("Ошибка входа:", win32api.GetLastError(), password)
-    
+            if result:
+                print("Вход выполнен успешно!", password)
+                found = True
+                break
+            else:
+                print("Ошибка входа:", win32api.GetLastError(), password)
+
+        # Увеличиваем длину пароля, если не нашли подходящий
+        if not found:
+            i += 1
+
 except Exception as ex:
-    print(characters)
+    print("Произошла ошибка:", ex)
 
 time_finish = int(time.time() - time_start)
 print(f"{time_finish} секунд(ы)")
 
-result = str(input("Нажмите для того чтобы консоль закрылась...."))
+result = str(input("Нажмите на ENTER для того чтобы консоль закрылась...."))
