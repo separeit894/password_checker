@@ -15,4 +15,4 @@ pip install -r requirements.txt
 
 в командной строке ввести:
 
-python password_checker.py
+python main.py
