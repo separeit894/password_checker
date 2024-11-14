@@ -10,7 +10,9 @@ git clone https://github.com/separeit894/password_checker
 
 Затем нужно установить зависимости ( Если не предпочитаете exe файл или он у вас не запускается )
 
+```bash
 pip install -r requirements.txt
+```
 
 ## Запуск программы
 
