@@ -1,18 +1,16 @@
 ### Password_Checker
 
-Проект сделанный на Python 3.12.0, для того что бы подобрать пароль к пользователю Windows
+Проект, сделанный на Python 3.12.0, предназначен для подбора пароля к учетной записи Windows.
 
 ## Установка
 
 ```bash
 git clone https://github.com/separeit894/password_checker
-```
 
 Затем нужно установить зависимости ( Если не предпочитаете exe файл или он у вас не запускается )
 
 ```bash
 pip install -r requirements.txt
-```
 
 ## Запуск программы
 
