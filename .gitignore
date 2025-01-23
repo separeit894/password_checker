@@ -1,3 +1,5 @@
 /venv/
 /venv_32/
 /venv_64/
+.idea
+venv-32
