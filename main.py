@@ -4,71 +4,121 @@ import win32api
 import itertools
 import string
 import time
-import json, os
+import json
+import os
 
 time_start = int(time.time())
-# Определяем необходимые константы
+
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
 
-# Указываем имя пользователя и пароль
-account = str(input("Введите имя учетной записи: "))
-username = account  # Замените на ваше имя пользователя
-
-# Добавляем русские буквы
 russian_letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
 
 characters = ''
-level = 0
-req_types = ["Вы хотите использовать числа для подбора: ( Y/n ) ",
-             "Вы хотите использовать латинские буквы для подбора: ( Y/n ) ",
-             "Вы хотите использовать кириллицу для подбора: ( Y/n ) ",
-             "Вы хотите использовать специальные символы для подбора: ( Y/n ) "]
-while True:
-
-    if level == 4:
-        break
-    level += 1
-    digits = str(input(f"{req_types[level - 1]}: "))
-    if digits.lower() in ["y", "д"]:
-        if level == 1:
-            characters += string.digits
-        if level == 2:
-            characters += string.ascii_letters
-        if level == 3:
-            characters += russian_letters
-        if level == 4:
-            characters += string.punctuation
-    elif digits.lower() in ["n", "н"]:
-        pass
-    else:
-        print("Вы неправильно ввели, а нужно ( y / n )!")
-        level -= 1
 
 progress_file = "progress.json"
 
+digits_progress = 0
+ascii_progress = 0
+russian_letter_progress = 0
+punc_progress = 0
+
 # Функция для сохранения прогресса
 def save_progress(length, try_id, tryed):
-    with open(progress_file, 'w', encoding="utf-8") as f:
-        json.dump({'length': length, 'try_id': try_id, 'tryed': tryed}, f)
+    with open(progress_file, 'w', encoding="cp1251") as f:
+        json.dump(
+            {"account": account,
+                   'digits': digits_progress,
+                   "ascii": ascii_progress,
+                   "russian_letter": russian_letter_progress,
+                   "punctuation": punc_progress,
+                   'characters': characters,
+                   'length': length,
+                   'try_id': try_id,
+                   'tryed': tryed
+             },
+                  f,
+                  indent=4
+                  )
 
 # Функция для загрузки прогресса
 def load_progress():
-    if os.path.exists(progress_file):
-        with open(progress_file, 'r') as f:
-            return json.load(f)
+    try:
+        if os.path.exists(progress_file):
+            with open(progress_file, 'r', encoding="cp1251") as f:
+                return json.load(f)
+        else:
+            if not os.path.isfile(progress_file):
+                # Если файл не существует, создаем его с пустым объектом
+                with open(progress_file, 'w') as f:
+                    json.dump({}, f)  # Записываем пустой объект в файл
+                print(f"Файл '{progress_file}' был создан.")
+
+    except FileNotFoundError:
+        print("Файл 'progress.json' не найден.")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Ошибка декодирования JSON: {e}")
+        return None
     return None
 
 # Загрузка прогресса
 progress = load_progress()
 if progress:
+    account = progress['account']
     i = progress['length']
     try_id = progress['try_id']
     tryed = progress['tryed']
+    characters = progress['characters']
 else:
     i = 1
     try_id = 0
     tryed = []
+# Указываем имя пользователя и пароль
+    account = str(input("Введите имя учетной записи: "))
+
+    level = 0
+    req_types = ["Вы хотите использовать числа для подбора: ( Y/n ) ",
+                 "Вы хотите использовать латинские буквы для подбора: ( Y/n ) ",
+                 "Вы хотите использовать кириллицу для подбора: ( Y/n ) ",
+                 "Вы хотите использовать специальные символы для подбора: ( Y/n ) "]
+
+
+
+    while True:
+
+        if level == 4:
+            break
+        level += 1
+        digits = str(input(f"{req_types[level - 1]}: "))
+        if digits.lower() in ["y", "д"]:
+            if level == 1:
+                characters += string.digits
+                digits_progress += 1
+            if level == 2:
+                characters += string.ascii_letters
+                ascii_progress += 1
+            if level == 3:
+                characters += russian_letters
+                russian_letter_progress += 1
+            if level == 4:
+                characters += string.punctuation
+                punc_progress += 1
+        elif digits.lower() in ["n", "н"]:
+            pass
+        else:
+            print("Вы неправильно ввели, а нужно ( y / n )!")
+            level -= 1
+
+username = account  # Замените на ваше имя пользователя
+
+
+
+
+
+
+# print("asdf " + characters)
+
 
 found = False
 
@@ -105,7 +155,7 @@ try:
             i += 1
 
 except KeyboardInterrupt:
-    # Сохраняем прогресс при прерывании
+
     save_progress(i, try_id, tryed)
     print("Программа прервана. Прогресс сохранен.")
 
@@ -115,4 +165,4 @@ except Exception as ex:
 time_finish = int(time.time() - time_start)
 print(f"{time_finish} секунд(ы)")
 
-result = str(input("Нажмите на ENTER для того чтобы консоль закрылась...."))
+
