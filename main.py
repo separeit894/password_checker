@@ -115,4 +115,4 @@ except Exception as ex:
 time_finish = int(time.time() - time_start)
 print(f"{time_finish} секунд(ы)")
 
-# result = str(input("Нажмите на ENTER для того чтобы консоль закрылась...."))
+result = str(input("Нажмите на ENTER для того чтобы консоль закрылась...."))
