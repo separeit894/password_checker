@@ -12,6 +12,7 @@ import sys
 from list_users import list_users
 from load_and_save_progress import load_progress, save_progress
 from logo import logotip_password_checker
+from characters_for_password import charactes_password
 
 logotip = logotip_password_checker()
 
@@ -23,16 +24,9 @@ users_list = list_users()
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
 
-russian_letters = 'абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
-
 characters = ''
 
 progress_file = "progress.json"
-
-digits_progress = 0
-ascii_progress = 0
-russian_letter_progress = 0
-punc_progress = 0
 
 # Загрузка прогресса
 progress = load_progress()
@@ -55,35 +49,7 @@ else:
         else:
             print("Учетная запись не найдена!\n Введите имя учетной записи еще раз")
 
-    level = 0
-    req_types = ["Вы хотите использовать числа для подбора: ( Y/n ) ",
-                 "Вы хотите использовать латинские буквы для подбора: ( Y/n ) ",
-                 "Вы хотите использовать кириллицу для подбора: ( Y/n ) ",
-                 "Вы хотите использовать специальные символы для подбора: ( Y/n ) "]
-
-    while True:
-        if level == 4:
-            break
-        level += 1
-        digits = str(input(f"{req_types[level - 1]}: "))
-        if digits.lower() in ["y", "д"]:
-            if level == 1:
-                characters += string.digits
-                digits_progress += 1
-            if level == 2:
-                characters += string.ascii_letters
-                ascii_progress += 1
-            if level == 3:
-                characters += russian_letters
-                russian_letter_progress += 1
-            if level == 4:
-                characters += string.punctuation
-                punc_progress += 1
-        elif digits.lower() in ["n", "н"]:
-            pass
-        else:
-            print("Вы неправильно ввели, а нужно ( y / n )!")
-            level -= 1
+    characters = charactes_password(characters)
 
 username = account  # Замените на ваше имя пользователя
 
