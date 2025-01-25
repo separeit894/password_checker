@@ -130,21 +130,24 @@ letters = {
 
 
 
-
-for i in range(8):
-    time.sleep(0.03)
-    # password = letters["p"][i] + "  " +letters["a"][i] + "   " + letters["s"][i] + "   " + letters["s"][i] + "   " + letters["w"][i] + "   " + letters["o"][i] + "   " + letters["r"][i] + "   " + letters["d"][i]
-    password = (f"{letters["p"][i]}  {letters["a"][i]}   {letters["s"][i]}   {letters["s"][i]}   {letters["w"][i]}   "
-                f"{letters["o"][i]}   {letters["r"][i]}   {letters["d"][i]}")
-    print(password)
-
-
-
-for i in range(8):
-    time.sleep(0.03)
-    # checker = letters["c"][i] + "   " + letters["h"][i] + "   " + letters["e"][i] + "   " + letters["c"][i] + "   " + letters["k"][i] + "   " + letters["e"][i] + "   " + letters["r"][i]
-    checker = f"{letters["c"][i]}   {letters["h"][i]}   {letters["e"][i]}   {letters["c"][i]}   {letters["k"][i]}   {letters["e"][i]}   {letters["r"][i]}"
-    print(checker)
+def logotip_password_checker():
+    for i in range(8):
+        time.sleep(0.03)
+        # password = letters["p"][i] + "  " +letters["a"][i] + "   " + letters["s"][i] + "   " + letters["s"][i] + "   " + letters["w"][i] + "   " + letters["o"][i] + "   " + letters["r"][i] + "   " + letters["d"][i]
+        password = (f"{letters["p"][i]}  {letters["a"][i]}   {letters["s"][i]}   {letters["s"][i]}   {letters["w"][i]}   "
+                    f"{letters["o"][i]}   {letters["r"][i]}   {letters["d"][i]}")
+        print(password)
 
 
-print("\n")
+
+    for i in range(8):
+        time.sleep(0.03)
+        # checker = letters["c"][i] + "   " + letters["h"][i] + "   " + letters["e"][i] + "   " + letters["c"][i] + "   " + letters["k"][i] + "   " + letters["e"][i] + "   " + letters["r"][i]
+        checker = f"{letters["c"][i]}   {letters["h"][i]}   {letters["e"][i]}   {letters["c"][i]}   {letters["k"][i]}   {letters["e"][i]}   {letters["r"][i]}"
+        print(checker)
+
+
+    print("\n")
+
+if __name__ == "__main__":
+    logotip_password_checker()

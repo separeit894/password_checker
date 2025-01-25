@@ -9,27 +9,16 @@ import json
 import os
 import sys
 
-import logo
+from list_users import list_users
+from load_and_save_progress import load_progress, save_progress
+from logo import logotip_password_checker
+
+logotip = logotip_password_checker()
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!")
 
+users_list = list_users()
 
-user_list = []
-def list_users():
-    try:
-        # Выполняем команду net user
-        result = subprocess.run(['net', 'user'], capture_output=True, text=True, check=True, encoding="866")
-        # Выводим результат
-        print(result.stdout)
-        res = result.stdout.strip().split("\n")
-        for re in res:
-            accounts = re.split()
-            user_list.extend(accounts)
-
-    except subprocess.CalledProcessError as e:
-        print(f"Ошибка при выполнении команды: {e}")
-
-list_users()
 
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
@@ -44,45 +33,6 @@ digits_progress = 0
 ascii_progress = 0
 russian_letter_progress = 0
 punc_progress = 0
-
-# Функция для сохранения прогресса
-def save_progress(length, try_id, tryed):
-    with open(progress_file, 'w', encoding="cp1251") as f:
-        json.dump(
-            {"account": account,
-                   'digits': digits_progress,
-                   "ascii": ascii_progress,
-                   "russian_letter": russian_letter_progress,
-                   "punctuation": punc_progress,
-                   'characters': characters,
-                   'length': length,
-                   'try_id': try_id,
-                   'tryed': tryed
-             },
-                  f,
-                  indent=4
-                  )
-
-# Функция для загрузки прогресса
-def load_progress():
-    try:
-        if os.path.exists(progress_file):
-            with open(progress_file, 'r', encoding="cp1251") as f:
-                return json.load(f)
-        else:
-            if not os.path.isfile(progress_file):
-                # Если файл не существует, создаем его с пустым объектом
-                with open(progress_file, 'w') as f:
-                    json.dump({}, f)  # Записываем пустой объект в файл
-                print(f"Файл '{progress_file}' был создан.")
-
-    except FileNotFoundError:
-        print("Файл 'progress.json' не найден.")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"Ошибка декодирования JSON: {e}")
-        return None
-    return None
 
 # Загрузка прогресса
 progress = load_progress()
@@ -99,12 +49,11 @@ else:
     # Указываем имя пользователя и пароль
     while True:
         account = str(input("Введите имя учетной записи: "))
-        if account in user_list:
+        if account in users_list:
             print("Учетная запись найдена")
             break
         else:
             print("Учетная запись не найдена!\n Введите имя учетной записи еще раз")
-
 
     level = 0
     req_types = ["Вы хотите использовать числа для подбора: ( Y/n ) ",
@@ -112,10 +61,7 @@ else:
                  "Вы хотите использовать кириллицу для подбора: ( Y/n ) ",
                  "Вы хотите использовать специальные символы для подбора: ( Y/n ) "]
 
-
-
     while True:
-
         if level == 4:
             break
         level += 1
@@ -172,7 +118,7 @@ try:
                         sys.exit()
 
                 # Сохраняем прогресс после каждой попытки
-                save_progress(i, try_id, tryed)
+                save_progress(account,characters, i, try_id, tryed)
 
         # Увеличиваем длину пароля, если не нашли подходящий
         if not found:
@@ -180,7 +126,7 @@ try:
 
 except KeyboardInterrupt:
 
-    save_progress(i, try_id, tryed)
+    save_progress(account,characters, i, try_id, tryed)
     print("Программа прервана. Прогресс сохранен.")
 
 except Exception as ex:
@@ -188,5 +134,3 @@ except Exception as ex:
 
 time_finish = int(time.time() - time_start)
 print(f"{time_finish} секунд(ы)")
-
-
