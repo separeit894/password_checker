@@ -3,3 +3,4 @@
 /venv_64/
 .idea
 venv-32
+__pycache__

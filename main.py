@@ -7,6 +7,8 @@ import time
 import json
 import os
 
+import logo
+
 time_start = int(time.time())
 
 LOGON32_LOGON_INTERACTIVE = 2
