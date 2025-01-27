@@ -1,17 +1,17 @@
 import subprocess
 import sys
 
-user_list = []
+
 def list_users():
     try:
+        user_list = """"""
         # Выполняем команду net user
         result = subprocess.run(['net', 'user'], capture_output=True, text=True, check=True, encoding="866")
         # Выводим результат
         print(result.stdout)
-        res = result.stdout.strip().split("\n")
-        for re in res:
-            accounts = re.split()
-            user_list.extend(accounts)
+
+        for re in result.stdout:
+            user_list += re
 
         return user_list
 

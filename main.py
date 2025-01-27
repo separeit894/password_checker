@@ -49,7 +49,15 @@ else:
         else:
             print("Учетная запись не найдена!\n Введите имя учетной записи еще раз")
 
-    characters = charactes_password(characters)
+    level = 0
+    while True:
+        if characters == "":
+            if level > 1:
+                print("Вы должны что-то выбрать")
+            characters = charactes_password(characters)
+            level += 1
+        else:
+            break
 
 username = account  # Замените на ваше имя пользователя
 
@@ -84,15 +92,14 @@ try:
                         sys.exit()
 
                 # Сохраняем прогресс после каждой попытки
-                save_progress(account,characters, i, try_id, tryed)
+                save_progress(account, characters, i, try_id, tryed)
 
         # Увеличиваем длину пароля, если не нашли подходящий
         if not found:
             i += 1
 
 except KeyboardInterrupt:
-
-    save_progress(account,characters, i, try_id, tryed)
+    save_progress(account, characters, i, try_id, tryed)
     print("Программа прервана. Прогресс сохранен.")
 
 except Exception as ex:
