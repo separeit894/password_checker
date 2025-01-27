@@ -16,7 +16,9 @@ from characters_for_password import charactes_password
 
 logotip = logotip_password_checker()
 
-print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!")
+print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
+print(f"Автор: separeit894\n"
+      f"Ccылка на github: https://github.com/separeit894/")
 
 users_list = list_users()
 
@@ -36,6 +38,7 @@ if progress:
     try_id = progress['try_id']
     tryed = progress['tryed']
     characters = progress['characters']
+    print_try = progress['print_try']
 else:
     i = 1
     try_id = 0
@@ -53,7 +56,7 @@ else:
     while True:
         if characters == "":
             if level > 1:
-                print("Вы должны что-то выбрать")
+                print(f"\nВы должны что-то выбрать!\n")
             characters = charactes_password(characters)
             level += 1
         else:
@@ -62,7 +65,8 @@ else:
 username = account  # Замените на ваше имя пользователя
 
 found = False
-time_start = int(time.time())
+# time_start = int(time.time())
+# questions = input("Вы хотите видеть все попытки? (y/n): ").strip().lower()
 try:
     while not found:
         for password in itertools.product(characters, repeat=i):
@@ -80,16 +84,30 @@ try:
                     ctypes.byref(token)
                 )
 
-                if result:
-                    print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
-                    found = True
-                    break
+                if print_try == "y":
+                    if result:
+                        print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
+                        found = True
+                        break
+                    else:
+                        print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
+                        tryed.append(password)
+                        if win32api.GetLastError() == 1909:
+                            print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                            sys.exit()
+
                 else:
-                    print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
-                    tryed.append(password)
-                    if win32api.GetLastError() == 1909:
-                        print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
-                        sys.exit()
+                    if result:
+                        print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
+                        found = True
+                        break
+                    else:
+                        if try_id % 250 == 0:
+                            print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
+                        tryed.append(password)
+                        if win32api.GetLastError() == 1909:
+                            print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                            sys.exit()
 
                 # Сохраняем прогресс после каждой попытки
                 save_progress(account, characters, i, try_id, tryed)
@@ -105,5 +123,5 @@ except KeyboardInterrupt:
 except Exception as ex:
     print("Произошла ошибка: ", ex)
 
-time_finish = int(time.time() - time_start)
-print(f"{time_finish} секунд(ы)")
+# time_finish = int(time.time() - time_start)
+# print(f"{time_finish} секунд(ы)")

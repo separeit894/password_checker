@@ -4,10 +4,11 @@ import os
 
 progress_file = "progress.json"
 # Функция для сохранения прогресса
-def save_progress(account,characters, length, try_id, tryed):
+def save_progress(account, characters, length, try_id, tryed):
     with open(progress_file, 'w', encoding="cp1251") as f:
         json.dump(
             {"account": account,
+                    'print_try': "y",
                     'characters': characters,
                    'length': length,
                    'try_id': try_id,
@@ -28,7 +29,7 @@ def load_progress():
                 # Если файл не существует, создаем его с пустым объектом
                 with open(progress_file, 'w') as f:
                     json.dump({}, f)  # Записываем пустой объект в файл
-                print(f"Файл '{progress_file}' был создан.")
+                # print(f"Файл '{progress_file}' был создан.")
 
     except FileNotFoundError:
         print("Файл 'progress.json' не найден.")
