@@ -1,6 +1,14 @@
 /venv/
 /venv_32/
 /venv_64/
+venv3.9
+dist
+build
+main_for_windows7_x64.spec
+main_for_windows7_x32.spec
+main_for_windows10_11_x32.spec
+main_for_windows10_11_x64.spec
+venv3.9_32
 .idea
 venv-32
 __pycache__

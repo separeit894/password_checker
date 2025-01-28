@@ -8,7 +8,7 @@ def list_users():
         # Выполняем команду net user
         result = subprocess.run(['net', 'user'], capture_output=True, text=True, check=True, encoding="866")
         # Выводим результат
-        print(result.stdout)
+        print(result.stdout.strip())
 
         for re in result.stdout:
             user_list += re

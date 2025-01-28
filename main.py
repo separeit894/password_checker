@@ -30,6 +30,9 @@ characters = ''
 
 progress_file = "progress.json"
 
+# Изменить этот параметр, если не хотите видеть все попытки
+print_try = "y"
+
 # Загрузка прогресса
 progress = load_progress()
 if progress:
@@ -38,7 +41,7 @@ if progress:
     try_id = progress['try_id']
     tryed = progress['tryed']
     characters = progress['characters']
-    print_try = progress['print_try']
+    # print_try = progress['print_try']
 else:
     i = 1
     try_id = 0
