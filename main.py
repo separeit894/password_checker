@@ -9,10 +9,10 @@ import json
 import os
 import sys
 
-from list_users import list_users
-from load_and_save_progress import load_progress, save_progress
-from logo import logotip_password_checker
-from characters_for_password import charactes_password
+from source.list_users import list_users
+from source.load_and_save_progress import load_progress, save_progress
+from source.logo import logotip_password_checker
+from source.characters_for_password import charactes_password
 
 logotip = logotip_password_checker()
 
@@ -41,7 +41,7 @@ if progress:
     try_id = progress['try_id']
     tryed = progress['tryed']
     characters = progress['characters']
-    # print_try = progress['print_try']
+    print_try = progress['print_try']
 else:
     i = 1
     try_id = 0
@@ -66,6 +66,7 @@ else:
             break
 
 username = account  # Замените на ваше имя пользователя
+
 
 found = False
 # time_start = int(time.time())
