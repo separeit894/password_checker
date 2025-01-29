@@ -30,7 +30,7 @@ characters = ''
 
 progress_file = "progress.json"
 
-# Изменить этот параметр, если не хотите видеть все попытки
+# Параметр по умолчанию, изменять можете тут или в файле progress.json
 print_try = "y"
 
 # Загрузка прогресса
@@ -92,18 +92,21 @@ try:
                     if result:
                         print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
                         found = True
+                        input("Нажмите на Enter........ ")
                         break
                     else:
                         print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
                         tryed.append(password)
                         if win32api.GetLastError() == 1909:
                             print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                            input("Нажмите на Enter........ ")
                             sys.exit()
 
                 else:
                     if result:
                         print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
                         found = True
+                        input("Нажмите на Enter........ ")
                         break
                     else:
                         if try_id % 250 == 0:
@@ -111,7 +114,9 @@ try:
                         tryed.append(password)
                         if win32api.GetLastError() == 1909:
                             print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                            input("Нажмите на Enter........ ")
                             sys.exit()
+
 
                 # Сохраняем прогресс после каждой попытки
                 save_progress(account, characters, i, try_id, tryed)
@@ -123,9 +128,11 @@ try:
 except KeyboardInterrupt:
     save_progress(account, characters, i, try_id, tryed)
     print("Программа прервана. Прогресс сохранен.")
+    input("Нажмите на Enter........ ")
 
 except Exception as ex:
     print("Произошла ошибка: ", ex)
+    input("Нажмите на Enter........ ")
 
 # time_finish = int(time.time() - time_start)
 # print(f"{time_finish} секунд(ы)")

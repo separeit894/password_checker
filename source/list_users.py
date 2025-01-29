@@ -9,10 +9,11 @@ def list_users():
         result = subprocess.run(['net', 'user'], capture_output=True, text=True, check=True, encoding="866")
         # Выводим результат
         res_print = result.stdout
+        # print(res_print)
         res_print_splt = res_print.splitlines()
 
 
-        for re in res_print_splt[4:-2]:
+        for re in res_print_splt[1:-2]:
             cleaned_line = re.strip()
 
             words = cleaned_line.split()
@@ -26,9 +27,9 @@ def list_users():
                 else:
                     combined_words.append(words[i])  # Добавляем текущее слово
                     i += 1
+            print(re)
 
             user_list.extend(combined_words)
-
         return user_list
 
     except subprocess.CalledProcessError as e:

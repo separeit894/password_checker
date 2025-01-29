@@ -29,7 +29,7 @@ def load_progress():
             if not os.path.isfile(progress_file):
                 # Если файл не существует, создаем его с пустым объектом
                 with open(progress_file, 'w') as f:
-                    json.dump({"account": None, 'print_try': "y", 'characters': None, 'length': None, 'try_id': None, 'tryed': None}, f, indent=4)  # Записываем пустой объект в файл
+                    json.dump({}, f, indent=4)  # Записываем пустой объект в файл
                 # print(f"Файл '{progress_file}' был создан.")
 
     except FileNotFoundError:
