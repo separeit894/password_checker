@@ -11,10 +11,9 @@ import sys
 
 from source.list_users import list_users
 from source.load_and_save_progress import load_progress, save_progress
-from source.logo import logotip_password_checker
 from source.characters_for_password import charactes_password
 
-logotip = logotip_password_checker()
+
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
 print(f"Автор: separeit894\n"
