@@ -1,4 +1,5 @@
 /venv/
+/venv-32/
 /venv_32/
 /venv_64/
 dist

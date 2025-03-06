@@ -1,4 +1,5 @@
 import ctypes
+from ctypes import wintypes
 import win32security
 import subprocess
 import win32api
@@ -21,6 +22,15 @@ print(f"Автор: separeit894\n"
 
 users_list = list_users()
 
+LogonUser = ctypes.windll.advapi32.LogonUserW
+LogonUser.argtypes = (
+    wintypes.LPCWSTR,  # Имя пользователя
+    wintypes.LPCWSTR,  # Домен
+    wintypes.LPCWSTR,  # Пароль
+    wintypes.DWORD,    # Тип входа
+    wintypes.DWORD,    # Провайдер
+    ctypes.POINTER(wintypes.HANDLE)  # Токен
+)
 
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
@@ -77,15 +87,16 @@ try:
             if not password in tryed:
                 try_id += 1
                 # Попытка входа в систему
-                token = ctypes.c_void_p()
-                result = ctypes.windll.advapi32.LogonUserA(
-                    username.encode('utf-8'),
-                    None,  # Укажите домен, если необходимо
-                    password.encode('utf-8'),
-                    LOGON32_LOGON_INTERACTIVE,
-                    LOGON32_PROVIDER_DEFAULT,
-                    ctypes.byref(token)
+                token = wintypes.HANDLE()
+                result = LogonUser(
+                username,
+                None,  # Локальная учетная запись
+                password,
+                LOGON32_LOGON_INTERACTIVE,
+                LOGON32_PROVIDER_DEFAULT,
+                ctypes.byref(token)
                 )
+
 
                 if print_try == "y":
                     if result:
