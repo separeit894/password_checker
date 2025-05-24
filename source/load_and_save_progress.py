@@ -22,6 +22,7 @@ def save_progress(account, characters, length, try_id, tryed):
 # Функция для загрузки прогресса
 def load_progress():
     try:
+        # Если файл с прогрессом существует, то он возвращает данные из этого файла
         if os.path.exists(progress_file):
             with open(progress_file, 'r', encoding="cp1251") as f:
                 return json.load(f)

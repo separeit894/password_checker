@@ -1,18 +1,22 @@
 import subprocess
 import sys
 
-
+# Функция, которая будет брать список пользователь в Windows
 def list_users():
     try:
         user_list = []
         # Выполняем команду net user
         result = subprocess.run(['net', 'user'], capture_output=True, text=True, check=True, encoding="866")
-        # Выводим результат
+        # получаем список пользователей
         res_print = result.stdout
-        # print(res_print)
+        # Разделяем по слову, получая из этого список
         res_print_splt = res_print.splitlines()
 
-
+        """
+        Этот цикл нужен для того чтобы проверить есть ли пользователь 
+        у которого внутри имени есть пробел по типу 'test user'
+        если да, то он добавляет его в список 
+        """
         for re in res_print_splt[1:-2]:
             cleaned_line = re.strip()
 
@@ -27,9 +31,11 @@ def list_users():
                 else:
                     combined_words.append(words[i])  # Добавляем текущее слово
                     i += 1
-            print(re)
+            print(re)   
 
+            # Добавляем в список уже имена с пробелами
             user_list.extend(combined_words)
+        # Возвращаем конечный список пользователей
         return user_list
 
     except subprocess.CalledProcessError as e:

