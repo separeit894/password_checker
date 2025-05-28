@@ -25,6 +25,7 @@ void generateCombinations(const wstring& charset, int length, wstring prefix,
                 clock_t end = clock();
                 double elapsed = static_cast<double>(end - start) / CLOCKS_PER_SEC;
                 wcout << L"Поиск завершен. Общее время выполнения: " << elapsed << L" секунд." << endl;
+                system("pause");
                 exit(0);
             } else {
                 triedPasswords.push_back(prefix);
