@@ -3,3 +3,5 @@ venv32
 progress.json
 source/__pycache__
 output
+create venv.bat
+run_main.bat
