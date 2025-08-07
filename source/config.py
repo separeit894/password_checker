@@ -1,0 +1,1 @@
+MY_ENCODING="utf-8"

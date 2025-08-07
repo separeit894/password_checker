@@ -1,11 +1,14 @@
 import json
 import os
+import sys
+
+from .config import MY_ENCODING
 
 
 progress_file = "progress.json"
 # Функция для сохранения прогресса
 def save_progress(account, characters, length, try_id, tryed):
-    with open(progress_file, 'w', encoding="cp1251") as f:
+    with open(progress_file, 'w', encoding=MY_ENCODING) as f:
         json.dump(
             {
                 "account": account,
@@ -24,7 +27,7 @@ def load_progress():
     try:
         # Если файл с прогрессом существует, то он возвращает данные из этого файла
         if os.path.exists(progress_file):
-            with open(progress_file, 'r', encoding="cp1251") as f:
+            with open(progress_file, 'r', encoding=MY_ENCODING) as f:
                 return json.load(f)
         else:
             if not os.path.isfile(progress_file):
@@ -40,3 +43,7 @@ def load_progress():
         print(f"Ошибка декодирования JSON: {e}")
         return None
     return None
+
+if __name__ == "__main__":
+    save_progress()
+    load_progress()

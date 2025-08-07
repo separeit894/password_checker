@@ -23,7 +23,7 @@ python main.py
 
 Перед тестированием **отключите ограничение на количество попыток входа в учетную запись!** В противном случае ваша учетная запись Windows может быть заблокирована.
 
-![here assets/how_to_disable_the_lookthreshold.gif](assets/how_to_disable_the_lock_threshold.gif)
+![here how to disable the lookthreshold ](assets/how_to_disable_the_lock_threshold.gif)
 
 
 ## Используемые библиотеки
