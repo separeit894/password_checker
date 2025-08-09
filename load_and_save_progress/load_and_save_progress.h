@@ -5,6 +5,6 @@
 
 using namespace std;
 
-void loadProgress(int& currentLength, vector<wstring>& triedPasswords, const string& progressFile);
+void loadProgress(wstring& username, wstring& charset, int& currentLength, vector<wstring>& triedPasswords, const string& progressFile);
 
-void saveProgress(int currentLength, const vector<wstring>& triedPasswords, const string& progressFile);
+void saveProgress(const wstring charset, const wstring username, int currentLength, const vector<wstring>& triedPasswords, const string& progressFile);
