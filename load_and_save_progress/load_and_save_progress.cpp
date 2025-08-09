@@ -12,8 +12,11 @@ void loadProgress(int& currentLength, vector<wstring>& triedPasswords, const str
         while (getline(file, line)) {
             if (line.find(L"length:") == 0) {
                 currentLength = stoi(line.substr(7));
-            } else if (line.find(L"password:") == 0) {
-                triedPasswords.push_back(line.substr(9));
+            } 
+            
+            if (line.find(L"password:") == 0) {
+                triedPasswords.push_back(line.substr(10));
+                
             }
         }
         file.close();
@@ -28,5 +31,9 @@ void saveProgress(int currentLength, const vector<wstring>& triedPasswords, cons
             file << L"password: " << password << endl;
         }
         file.close();
+    }
+    else
+    {
+        wcout << L"Не открлся файл" << std::endl;
     }
 }

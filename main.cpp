@@ -13,9 +13,13 @@
 using namespace std;
 
 clock_t start;
+string progressFile = "progress.txt";
+
+
 
 void generateCombinations(const wstring& charset, int length, wstring prefix, 
                          const wstring& username, vector<wstring>& triedPasswords) {
+    
     if (length == 0) {
         if (!binary_search(triedPasswords.begin(), triedPasswords.end(), prefix)) {
             wcout << L"Попытка № " << triedPasswords.size() + 1 << L" для пароля: " << prefix << endl;
@@ -29,6 +33,7 @@ void generateCombinations(const wstring& charset, int length, wstring prefix,
                 exit(0);
             } else {
                 triedPasswords.push_back(prefix);
+                saveProgress(length + 1, triedPasswords, progressFile);
             }
         }
         return;
@@ -51,8 +56,11 @@ int main() {
     vector<wstring> triedPasswords; // Изменен на wstring
     int currentLength = minLength;
 
-    string progressFile = "progress.txt";
+    
     loadProgress(currentLength, triedPasswords, progressFile);
+
+    std::wcout << L"Version: " << 2.6 << std::endl <<
+    L"Github: " << L"https://github.com/separeit894/password_checker" << std::endl;
 
     // Ввод имени пользователя через wcin
     wcout << L"Введите имя учетной записи: ";
@@ -103,7 +111,6 @@ int main() {
     while (true) {
         wcout << L"Начинаю проверку паролей длиной " << currentLength << L" символов..." << endl;
         generateCombinations(charset, currentLength, L"", username, triedPasswords);
-        saveProgress(currentLength + 1, triedPasswords, progressFile);
         currentLength++;
     }
 
