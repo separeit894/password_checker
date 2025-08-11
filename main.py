@@ -15,7 +15,7 @@ from source import list_users
 from source import load_progress, save_progress
 from source import charactes_password
 
-version = "4.6"
+version = "4.7"
 print(f"Версия: {version}")
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
@@ -59,16 +59,28 @@ else:
     i = 1
     try_id = 0
     tryed = []
-    # Указываем имя пользователя и пароль
-    while True:
-        account = str(input("Введите имя учетной записи: "))
-        # Проверяет есть ли учетная запись, которую ввел пользователь в списке
-        if account in users_list:
-            print("Учетная запись найдена")
-            break
-        # Если её нет, то пользователь должен уже ввести корректную учетную запись
-        else:
-            print("Учетная запись не найдена!\n Введите имя учетной записи еще раз")
+    
+    # Указываем учетную запись пользователя
+    number = None
+    account = None
+    find_account = False
+    
+    # Цикл будет действовать пока find_account будет false
+    while not find_account:
+        for i, line in enumerate(users_list):
+            if number is None:
+                print(f"{i} : {line}")
+            else:
+                if number == i:
+                    print("Учетная запись найдена")
+                    account = users_list[number]
+                    find_account = True
+                    break
+            
+        if number is None:
+            number = int(input("Напишите номер учетной записи: "))
+        
+        
 
     level = 0
     while True:
@@ -81,7 +93,6 @@ else:
             break
 
 username = account  
-
 
 found = False
 
