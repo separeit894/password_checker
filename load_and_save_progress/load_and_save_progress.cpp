@@ -31,6 +31,10 @@ void loadProgress(wstring& username, wstring& charset, int& currentLength, vecto
         }
         file.close();
     }
+    else
+    {
+        wcerr << L"Error open file" << endl;
+    }
 }
 
 void saveProgress(const wstring charset, const wstring username, int currentLength, const vector<wstring>& triedPasswords, const string& progressFile) {
@@ -46,6 +50,6 @@ void saveProgress(const wstring charset, const wstring username, int currentLeng
     }
     else
     {
-        wcout << L"Не открылся файл" << std::endl;
+        wcout << L"The file did not open" << std::endl;
     }
 }
