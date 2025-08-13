@@ -3,8 +3,7 @@
 #include <fstream>
 #include <string>
 
-using namespace std;
 
-void loadProgress(wstring& username, wstring& charset, int& currentLength, vector<wstring>& triedPasswords, const string& progressFile);
+void loadProgress(std::wstring& username, std::wstring& charset, int& currentLength, std::vector<std::wstring>& triedPasswords, const std::string& progressFile);
 
-void saveProgress(const wstring charset, const wstring username, int currentLength, const vector<wstring>& triedPasswords, const string& progressFile);
+void saveProgress(const std::wstring charset, const std::wstring username, int currentLength, const std::vector<std::wstring>& triedPasswords, const std::string& progressFile);

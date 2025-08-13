@@ -3,13 +3,13 @@
 #include <fstream>
 #include <string>
 
-using namespace std;
 
-void loadProgress(wstring& username, wstring& charset, int& currentLength, vector<wstring>& triedPasswords, const string& progressFile) {
-    wifstream file(progressFile);
+
+void loadProgress(std::wstring& username, std::wstring& charset, int& currentLength, std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
+    std::wifstream file(progressFile);
     if (file.is_open()) {
-        wstring line;
-        while (getline(file, line)) {
+        std::wstring line;
+        while (std::getline(file, line)) {
             if(line.find(L"username:")== 0)
             {
                 username = line.substr(10);
@@ -31,25 +31,18 @@ void loadProgress(wstring& username, wstring& charset, int& currentLength, vecto
         }
         file.close();
     }
-    else
-    {
-        wcerr << L"Error open file" << endl;
-    }
 }
 
-void saveProgress(const wstring charset, const wstring username, int currentLength, const vector<wstring>& triedPasswords, const string& progressFile) {
-    wofstream file(progressFile);
+void saveProgress(const std::wstring charset, const std::wstring username, int currentLength, const std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
+    std::wofstream file(progressFile);
     if (file.is_open()) {
-        file << "username: " << username << endl;
-        file << L"charset: " << charset << endl;
-        file << L"length: " << currentLength << endl;
-        for (const wstring& password : triedPasswords) {
-            file << L"password: " << password << endl;
+        file << "username: " << username << std::endl;
+        file << L"charset: " << charset << std::endl;
+        file << L"length: " << currentLength << std::endl;
+        for (const std::wstring& password : triedPasswords) {
+            file << L"password: " << password << std::endl;
         }
         file.close();
     }
-    else
-    {
-        wcout << L"The file did not open" << std::endl;
-    }
+    
 }

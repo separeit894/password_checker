@@ -6,64 +6,89 @@
 #include <windows.h>
 #include <algorithm>
 #include <io.h>
-#include <fcntl.h> // Для _setmode
-#include "load_and_save_progress/load_and_save_progress.h"
-#include "attemptLogin/attemptLogin.h"
 #include <filesystem>
 #include <csignal>
 #include <cstdlib>
 #include <atomic>
 #include <thread>
+#include <codecvt>
 
+#include "load_and_save_progress/load_and_save_progress.h"
+#include "attemptLogin/attemptLogin.h"
 
-using namespace std;
 
 clock_t start;
-string progressFile = "progress.txt";
+std::string progressFile = "progress.txt";
+int tryed = 0;
 
 std::atomic<bool> stop(false);
 
-BOOL WINAPI ConsoleHandler(DWORD signal) {
-    if (signal == CTRL_C_EVENT) {
-        std::cout << "\nПоймал Ctrl+C! Выход...\n";
-        stop = true;
-        return TRUE;
-    }
-    return FALSE;
-}
+std::wstring string_to_wstring(const std::string& str);
 
-void generateCombinations(const wstring& charset, int length, wstring prefix, const wstring& username, vector<wstring>& triedPasswords); 
+BOOL WINAPI ConsoleHandler(DWORD signal);
+
+void generateCombinations(const std::wstring& charset, int length, std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords); 
 
 
-int main() {
+int main(int argc, char* argv[]) {
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
-    // Включение поддержки Unicode в консоли
-    _setmode(_fileno(stdin), _O_U16TEXT);
-    _setmode(_fileno(stdout), _O_U16TEXT);
+    
+    std::vector<std::string> args(argv, argv + argc);
+
+    bool debug = false;
+    for(const std::string arg : args)
+    {
+        
+        if(arg == "--debug")
+        {
+            debug = true;
+        }
+    }
+
 
     system("net user");
-    wstring username; // Изменен на wstring
-    wstring charset ;  // Изменен на wstring
+
+    std::wstring username; // Изменен на wstring
+    std::wstring charset ;  // Изменен на wstring
     int minLength = 1;
-    vector<wstring> triedPasswords; // Изменен на wstring
+    std::vector<std::wstring> triedPasswords; // Изменен на wstring
     int currentLength = minLength;
     
     bool find_file = false;
-    if(filesystem::exists(progressFile))
+    bool result_find_file = std::filesystem::exists(progressFile);
+    
+    if(debug)
+    {
+        std::wcout << L"result_find_file " <<result_find_file << std::endl;
+    }
+    
+    if(result_find_file)
     {
         find_file = true;
-        std::cout << "file here" << std::endl;
+        if(debug)
+        {
+            std::wcout << L"File " << string_to_wstring(progressFile) << L" find here!" << std::endl;
+
+        }
     }
     else
     {
-        std::cout << "file not here" << std::endl;
+        if(debug)
+        {
+            std::wcout << L"File " << string_to_wstring(progressFile) << L" not here!" << std::endl;
+        }
+        
     }
     
     if(find_file)
-        std::cout << "if else find file " << std::endl;
+        if(debug)
+        {
+            std::cout << "find file " << std::endl;
+        }
+            
         loadProgress(username, charset, currentLength, triedPasswords, progressFile);
 
-    std::wcout << L"Version: " << 2.8 << std::endl <<
+    std::wcout << L"Version: " << 2.9 << std::endl <<
     L"Github Page Password Checker: " << L"https://github.com/separeit894/password_checker" << std::endl <<
     L"My Github Page: " << L"https://github.com/separeit894" << std::endl;
 
@@ -71,12 +96,12 @@ int main() {
     // Ввод имени пользователя через wcin
     if(username.empty())
     {
-        wcout << L"Enter the account name: ";
-        std::getline(wcin, username);
+        std::wcout << L"Enter the account name: ";
+        std::getline(std::wcin, username);
     }
     
 
-    vector<wstring> req_types = { // Изменен на wstring
+    std::vector<std::wstring> req_types = { // Изменен на wstring
         L"Digits (y/n): ",
         L"Ascii letters (y/n): ",
         L"Russian letters (y/n): ",
@@ -92,16 +117,16 @@ int main() {
             }
 
             level++;
-            wstring digits;
+            std::wstring digits;
             // getline(wcin >> ws, digits); // Используется wcin
-            wcout << req_types[level - 1] << " : "; // Используется wcout
+            std::wcout << req_types[level - 1] << " : "; // Используется wcout
             
-            int result = !std::getline(wcin, digits);
-            std::cout << "result: " << result << std::endl;
-            if (!std::getline(wcin, digits)) {
+            // int result = !std::getline(wcin, digits);
+            //std::cout << "result: " << result << std::endl;
+            if (!std::getline(std::wcin, digits)) {
 
                 // Если ввод сломан (например, Ctrl+C), выходим
-                wcout << L"\nInput interrupted. Exiting.\n";
+                std::wcout << L"\nInput interrupted. Exiting.\n";
                 return -1;
                 
             }
@@ -121,7 +146,7 @@ int main() {
             } else if (digits == L"n" || digits == L"N" || digits == L"н" || digits == L"Н") {
                 continue;
             } else {
-                wcout << L"You entered it incorrectly! Enter 'y' or 'n'." <<  endl;
+                std::wcout << L"You entered it incorrectly! Enter 'y' or 'n'." <<  std::endl;
                 level--;
                 continue;
                 
@@ -136,8 +161,8 @@ int main() {
 
     while (true) {
 
-        wcout << L"I'm starting to check passwords. " << currentLength << L" characters..." << endl;
-        thread mythread2(generateCombinations, std::ref(charset), currentLength, L"", username, std::ref(triedPasswords));
+        std::wcout << L"I'm starting to check passwords. " << currentLength << L" characters..." << std::endl;
+        std::thread mythread2(generateCombinations, std::ref(charset), currentLength, L"", username, std::ref(triedPasswords));
         mythread2.join();
         
         currentLength++;
@@ -148,7 +173,7 @@ int main() {
 
 
 
-void generateCombinations(const wstring& charset, int length, wstring prefix, const wstring& username, vector<wstring>& triedPasswords) 
+void generateCombinations(const std::wstring& charset, int length, std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords) 
 {
     
     std::vector<std::wstring> combinations;
@@ -173,21 +198,44 @@ void generateCombinations(const wstring& charset, int length, wstring prefix, co
         {
             
             triedPasswords.push_back(line_combination);
-            wcout << L"Attempt number " << triedPasswords.size() << L" for password: " << line_combination << endl;
+            std::wcout << L"Attempt number " << triedPasswords.size() << L" for password: " << line_combination << std::endl;
             if (attemptLogin(username, line_combination)) {
-                wcout << L"Success! Password found: " << prefix << endl;
+                std::wcout << L"Success! Password found: " << line_combination << std::endl;
                 clock_t end = clock();
                 double elapsed = static_cast<double>(end - start) / CLOCKS_PER_SEC;
-                wcout << L"The search is completed. Total lead time: " << elapsed << L" seconds." << endl;
+                std::wcout << L"The search is completed. Total lead time: " << elapsed << L" seconds." << std::endl;
                 system("pause");
                 exit(0);
             } else
             {
-                saveProgress(charset, username, length, triedPasswords, progressFile);
+                // the file will be saved once every 100 attempts.
+                tryed++;
+                if(tryed == 100)
+                {
+                    saveProgress(charset, username, length, triedPasswords, progressFile);
+                    tryed = 0;
+                }
+                
             }
-
         }
     }
 
     
+}
+
+BOOL WINAPI ConsoleHandler(DWORD signal) {
+    if (signal == CTRL_C_EVENT) {
+        std::cout << "\nПоймал Ctrl+C! Выход...\n";
+        stop = true;
+        exit(0);
+        return TRUE;
+        
+    }
+    return FALSE;
+}
+
+std::wstring string_to_wstring(const std::string& str)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.from_bytes(str);
 }
