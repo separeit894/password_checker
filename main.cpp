@@ -12,6 +12,8 @@
 #include <atomic>
 #include <thread>
 #include <codecvt>
+#include <array>
+#include <memory>
 
 #include "load_and_save_progress/load_and_save_progress.h"
 #include "attemptLogin/attemptLogin.h"
@@ -29,6 +31,36 @@ BOOL WINAPI ConsoleHandler(DWORD signal);
 
 void generateCombinations(const std::wstring& charset, int length, std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords); 
 
+std::vector<std::wstring> exec(const char* cmd)
+{
+    std::array<wchar_t, 128> buffer;
+    std::vector<std::wstring> result_vec;
+    
+
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+
+    while(fgetws(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        std::wstring line = buffer.data();
+        line.erase(std::find_if(line.rbegin(), line.rend(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }).base(), line.end());
+        
+        if(!line.empty());
+            
+            result_vec.push_back(line.substr());
+    }
+
+    if(!result_vec.empty())
+        result_vec.erase(result_vec.begin());
+        result_vec.erase(result_vec.begin());
+        result_vec.erase(result_vec.begin());
+        result_vec.erase(result_vec.end());
+        result_vec.erase(result_vec.end());
+
+    return result_vec;
+}
+
 
 int main(int argc, char* argv[]) {
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
@@ -45,8 +77,19 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // команда для проверки сколько пользователей
+    std::string command_list_user = "powershell -Command \"Get-WmiObject -Class Win32_UserAccount -Filter 'LocalAccount=True' | Select-Object Name\"";
+    std::vector<std::wstring> result = exec(command_list_user.c_str());
 
-    system("net user");
+    int i = 0;
+    for(std::wstring line : result)
+    {
+        std::wcout << i << L" : " << line << std::endl;
+        
+        ++i;
+    }
+    std::cout << std::endl;
+    
 
     std::wstring username; // Изменен на wstring
     std::wstring charset ;  // Изменен на wstring
@@ -88,16 +131,21 @@ int main(int argc, char* argv[]) {
             
         loadProgress(username, charset, currentLength, triedPasswords, progressFile);
 
-    std::wcout << L"Version: " << 2.9 << std::endl <<
+    std::wcout << L"Version: " << (float)3.0 << std::endl <<
     L"Github Page Password Checker: " << L"https://github.com/separeit894/password_checker" << std::endl <<
     L"My Github Page: " << L"https://github.com/separeit894" << std::endl;
 
     
     // Ввод имени пользователя через wcin
+    int number_account;
     if(username.empty())
     {
-        std::wcout << L"Enter the account name: ";
-        std::getline(std::wcin, username);
+        std::wcout << L"Enter the number account: ";
+        std::cin >> number_account;
+
+        // Очистка буфера
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        username = result[number_account];
     }
     
 
@@ -119,7 +167,7 @@ int main(int argc, char* argv[]) {
             level++;
             std::wstring digits;
             // getline(wcin >> ws, digits); // Используется wcin
-            std::wcout << req_types[level - 1] << " : "; // Используется wcout
+            std::wcout << req_types[level - 1]; // Используется wcout
             
             // int result = !std::getline(wcin, digits);
             //std::cout << "result: " << result << std::endl;
@@ -208,9 +256,9 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
                 exit(0);
             } else
             {
-                // the file will be saved once every 100 attempts.
+                // the file will be saved once every 10 attempts.
                 tryed++;
-                if(tryed == 100)
+                if(tryed == 10)
                 {
                     saveProgress(charset, username, length, triedPasswords, progressFile);
                     tryed = 0;
@@ -225,7 +273,7 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
 
 BOOL WINAPI ConsoleHandler(DWORD signal) {
     if (signal == CTRL_C_EVENT) {
-        std::cout << "\nПоймал Ctrl+C! Выход...\n";
+        std::cout << "\nCaught Ctrl+C! Exit...\n";
         stop = true;
         exit(0);
         return TRUE;
