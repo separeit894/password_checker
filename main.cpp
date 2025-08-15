@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
             
         loadProgress(username, charset, currentLength, triedPasswords, progressFile);
 
-    std::wcout << L"Version: " << (float)3.0 << std::endl <<
+    std::wcout << L"Version: " << L"3.1" << std::endl <<
     L"Github Page Password Checker: " << L"https://github.com/separeit894/password_checker" << std::endl <<
     L"My Github Page: " << L"https://github.com/separeit894" << std::endl;
 
@@ -244,9 +244,17 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
     {
         if (!binary_search(triedPasswords.begin(), triedPasswords.end(), line_combination))
         {
-            
+            DWORD Error = GetLastError();
+            if(Error = 1909)
+            {
+                std::wcout << L"Error 1909 means that your account has been blocked\n\tthe end of the work"<< std::endl;
+                std::wcout << L"Press Enter........";
+                
+                std::wcin.get();
+                exit(0);
+            }
             triedPasswords.push_back(line_combination);
-            std::wcout << L"Attempt number " << triedPasswords.size() << L" for password: " << line_combination << std::endl;
+            std::wcout << L"Error : " << Error << L" : " <<L" Attempt number " << triedPasswords.size() << L" for password: " << line_combination << std::endl;
             if (attemptLogin(username, line_combination)) {
                 std::wcout << L"Success! Password found: " << line_combination << std::endl;
                 clock_t end = clock();
