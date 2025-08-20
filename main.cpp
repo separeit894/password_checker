@@ -65,34 +65,91 @@ std::vector<std::wstring> exec(const char* cmd)
 int main(int argc, char* argv[]) {
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
     
-    std::vector<std::string> args(argv, argv + argc);
-
     bool debug = false;
-    for(const std::string arg : args)
+    std::wstring username; // creating a variable to which the account username will be passed
+    std::wstring charset ;  // creating a variable that will be passed the characters that will be used in combinations.
+    for(int i = 1; i < argc; ++i)
     {
-        
-        if(arg == "--debug")
+        if(strcmp(argv[i], "--debug") == 0)
         {
             debug = true;
+            
+        } else if (strcmp(argv[i],"--username") == 0)
+        {
+            int b = ++i;
+            if(b < argc && argv[b][0] != '-')
+            {
+                username = string_to_wstring(argv[b]);
+                
+            } else
+            {
+                std::wcerr << "username is incorrect!" << std::endl;
+                exit(0);
+            }
+        } else if(strcmp(argv[i], "--charset") == 0)
+        {
+            int b = ++i;
+            if(b < argc && argv[b][0] != '-')
+            {
+                charset = string_to_wstring(argv[b]);
+                
+            } else
+            {
+                std::wcerr << "charset is incorrect!" << std::endl;
+                exit(0);
+            }
+        } else if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "/?") == 0)
+        {
+            std::wcout << L"Usage: password_checker [options]\n\n";
+            std::wcout << L"Description:\n";
+            std::wcout << L"  Password Checker is a program that logs into a Windows account by iterating through the characters given to it by the user.\n";
+            std::wcout << L"  It works if the user has a null value of \"lock threshold value\" in secpol.msc.\n";
+            std::wcout << L"  Read more on Github: https://github.com/separeit894/password_checker/tree/password_checker_c%2B%2B\n\n"; 
+            std::wcout << L"Options:\n";
+            std::wcout << L"  --debug              Enable debug mode.\n";
+            std::wcout << L"  --username USERNAME  Specify the username.\n";
+            std::wcout << L"  --charset CHARSET    Specify the character set.\n";
+            std::wcout << L"  --help, /?           Show this help message.\n";
+            std::wcout << L"\nExamples:\n";
+            std::wcout << L"  password_checker --username JohnDoe --charset 01234\n";
+            std::wcout << L"  password_checker --debug\n";
+            std::wcout << L"  password_checker\n";
+            
+            exit(0);
         }
-    }
-
-    // команда для проверки сколько пользователей
-    std::string command_list_user = "powershell -Command \"Get-WmiObject -Class Win32_UserAccount -Filter 'LocalAccount=True' | Select-Object Name\"";
-    std::vector<std::wstring> result = exec(command_list_user.c_str());
-
-    int i = 0;
-    for(std::wstring line : result)
-    {
-        std::wcout << i << L" : " << line << std::endl;
+        else
+        {
+            std::wcout << "There is no such argument to learn more about the program --help or /?" << std::endl;
+            exit(0);
+        }
         
-        ++i;
+        
     }
-    std::cout << std::endl;
+
     
 
-    std::wstring username; // Изменен на wstring
-    std::wstring charset ;  // Изменен на wstring
+    // команда для проверки сколько пользователей
+    std::vector<std::wstring> result;
+    if(username.empty() || charset.empty())
+    {
+        std::string command_list_user = "powershell -Command \"Get-WmiObject -Class Win32_UserAccount -Filter 'LocalAccount=True' | Select-Object Name\"";
+        result = exec(command_list_user.c_str());
+
+        if(username.empty())
+        {
+            int i = 0;
+            for(std::wstring line : result)
+            {
+                std::wcout << i << L" : " << line << std::endl;
+            
+                ++i;
+            }
+            std::cout << std::endl;
+        }
+        
+    }
+    
+    
     int minLength = 1;
     std::vector<std::wstring> triedPasswords; // Изменен на wstring
     int currentLength = minLength;
@@ -131,7 +188,7 @@ int main(int argc, char* argv[]) {
             
         loadProgress(username, charset, currentLength, triedPasswords, progressFile);
 
-    std::wcout << L"Version: " << L"3.1" << std::endl <<
+    std::wcout << L"Version: " << L"3.2" << std::endl <<
     L"Github Page Password Checker: " << L"https://github.com/separeit894/password_checker" << std::endl <<
     L"My Github Page: " << L"https://github.com/separeit894" << std::endl;
 
@@ -245,14 +302,6 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
         if (!binary_search(triedPasswords.begin(), triedPasswords.end(), line_combination))
         {
             DWORD Error = GetLastError();
-            if(Error = 1909)
-            {
-                std::wcout << L"Error 1909 means that your account has been blocked\n\tthe end of the work"<< std::endl;
-                std::wcout << L"Press Enter........";
-                
-                std::wcin.get();
-                exit(0);
-            }
             triedPasswords.push_back(line_combination);
             std::wcout << L"Error : " << Error << L" : " <<L" Attempt number " << triedPasswords.size() << L" for password: " << line_combination << std::endl;
             if (attemptLogin(username, line_combination)) {
@@ -264,6 +313,15 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
                 exit(0);
             } else
             {
+                
+                if(Error == 1909)
+                {
+                    std::wcout << L"Error 1909 means that your account has been blocked\n\tthe end of the work"<< std::endl;
+                    std::wcout << L"Press Enter........";
+                
+                    std::wcin.get();
+                    exit(0);
+                }
                 // the file will be saved once every 10 attempts.
                 tryed++;
                 if(tryed == 10)
