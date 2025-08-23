@@ -2,7 +2,6 @@
 #include <string>
 #include <windows.h>
 
-
 bool attemptLogin(const std::wstring& username, const std::wstring& password) {
     HANDLE tokenHandle;
     bool result = LogonUserW(

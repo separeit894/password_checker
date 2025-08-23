@@ -4,7 +4,6 @@
 #include <string>
 
 
-
 void loadProgress(std::wstring& username, std::wstring& charset, int& currentLength, std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
     std::wifstream file(progressFile);
     if (file.is_open()) {

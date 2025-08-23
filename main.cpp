@@ -19,6 +19,8 @@
 #include "attemptLogin/attemptLogin.h"
 
 
+std::wstring VERSION = L"3.3"; 
+
 clock_t start;
 std::string progressFile = "progress.txt";
 int tryed = 0;
@@ -52,9 +54,11 @@ std::vector<std::wstring> exec(const char* cmd)
     }
 
     if(!result_vec.empty())
+        // We remove three lines from the beginning because they are empty
         result_vec.erase(result_vec.begin());
         result_vec.erase(result_vec.begin());
         result_vec.erase(result_vec.begin());
+        // We remove three lines from the end because they are empty
         result_vec.erase(result_vec.end());
         result_vec.erase(result_vec.end());
 
@@ -83,7 +87,7 @@ int main(int argc, char* argv[]) {
                 
             } else
             {
-                std::wcerr << "username is incorrect!" << std::endl;
+                wprintf(L"Username is incorrect!\n");
                 exit(0);
             }
         } else if(strcmp(argv[i], "--charset") == 0)
@@ -95,40 +99,47 @@ int main(int argc, char* argv[]) {
                 
             } else
             {
-                std::wcerr << "charset is incorrect!" << std::endl;
+                wprintf(L"Charset is incorrect!\n");
+
                 exit(0);
             }
+
+        } else if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-v") == 0) 
+        {
+            wprintf(L"Password Checker C++ V-%ls \n", VERSION.c_str());
+
+            exit(0);
         } else if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "/?") == 0)
         {
-            std::wcout << L"Usage: password_checker [options]\n\n";
-            std::wcout << L"Description:\n";
-            std::wcout << L"  Password Checker is a program that logs into a Windows account by iterating through the characters given to it by the user.\n";
-            std::wcout << L"  It works if the user has a null value of \"lock threshold value\" in secpol.msc.\n";
-            std::wcout << L"  Read more on Github: https://github.com/separeit894/password_checker/tree/password_checker_c%2B%2B\n\n"; 
-            std::wcout << L"Options:\n";
-            std::wcout << L"  --debug              Enable debug mode.\n";
-            std::wcout << L"  --username USERNAME  Specify the username.\n";
-            std::wcout << L"  --charset CHARSET    Specify the character set.\n";
-            std::wcout << L"  --help, /?           Show this help message.\n";
-            std::wcout << L"\nExamples:\n";
-            std::wcout << L"  password_checker --username JohnDoe --charset 01234\n";
-            std::wcout << L"  password_checker --debug\n";
-            std::wcout << L"  password_checker\n";
+            wprintf(L"Usage: password_checker [options]\n\n");
+            wprintf(L"Description:\n");
+            wprintf(L"  Password Checker is a program that logs into a Windows account by iterating through the characters given to it by the user.\n");
+            wprintf(L"  It works if the user has a null value of \"lock threshold value\" in secpol.msc.\n");
+            wprintf(L"  Read more on Github: https://github.com/separeit894/password_checker/tree/password_checker_c%2B%2B\n\n");
+            wprintf(L"Options:\n");
+            wprintf(L"  --debug              Enable debug mode.\n");
+            wprintf(L"  --version, -v        Show the program version.\n");
+            wprintf(L"  --username USERNAME  Specify the username.\n");
+            wprintf(L"  --charset CHARSET    Specify the character set.\n");
+            wprintf(L"  --help, /?           Show this help message.\n");
+            wprintf(L"\nExamples:\n");
+            wprintf(L"  password_checker --username JohnDoe --charset 01234\n");
+            wprintf(L"  password_checker --debug\n");
+            wprintf(L"  password_checker --version\n");
+            wprintf(L"  password_checker\n");
             
             exit(0);
         }
         else
         {
-            std::wcout << "There is no such argument to learn more about the program --help or /?" << std::endl;
+            wprintf(L"There is no such argument to learn more about the program --help or /?\n");
+            
             exit(0);
         }
-        
-        
     }
-
     
 
-    // команда для проверки сколько пользователей
+    // the command to check how many users
     std::vector<std::wstring> result;
     if(username.empty() || charset.empty())
     {
@@ -140,8 +151,7 @@ int main(int argc, char* argv[]) {
             int i = 0;
             for(std::wstring line : result)
             {
-                std::wcout << i << L" : " << line << std::endl;
-            
+                wprintf(L"%i : %ls\n", i, line.c_str());
                 ++i;
             }
             std::cout << std::endl;
@@ -151,65 +161,52 @@ int main(int argc, char* argv[]) {
     
     
     int minLength = 1;
-    std::vector<std::wstring> triedPasswords; // Изменен на wstring
+    std::vector<std::wstring> triedPasswords; 
     int currentLength = minLength;
     
-    bool find_file = false;
     bool result_find_file = std::filesystem::exists(progressFile);
-    
-    if(debug)
-    {
-        std::wcout << L"result_find_file " <<result_find_file << std::endl;
-    }
     
     if(result_find_file)
     {
-        find_file = true;
+        
         if(debug)
         {
-            std::wcout << L"File " << string_to_wstring(progressFile) << L" find here!" << std::endl;
-
+            wprintf(L"File %ls find here! \n", string_to_wstring(progressFile).c_str());
         }
+        loadProgress(username, charset, currentLength, triedPasswords, progressFile);
     }
     else
     {
         if(debug)
         {
-            std::wcout << L"File " << string_to_wstring(progressFile) << L" not here!" << std::endl;
+            wprintf(L"File %ls not here! \n", string_to_wstring(progressFile).c_str());
         }
         
-    }
-    
-    if(find_file)
-        if(debug)
-        {
-            std::cout << "find file " << std::endl;
-        }
-            
-        loadProgress(username, charset, currentLength, triedPasswords, progressFile);
+    }        
 
-    std::wcout << L"Version: " << L"3.2" << std::endl <<
-    L"Github Page Password Checker: " << L"https://github.com/separeit894/password_checker" << std::endl <<
-    L"My Github Page: " << L"https://github.com/separeit894" << std::endl;
+    std::wstring link_github_page_password_checker = L"https://github.com/separeit894/password_checker";
+    std::wstring my_github_page = L"https://github.com/separeit894";
 
+    wprintf(L"Version: %ls \nGithub Page Password Checker: %ls \nMy Github Page: %ls \n", VERSION.c_str(), link_github_page_password_checker.c_str(), my_github_page.c_str());
     
-    // Ввод имени пользователя через wcin
+    
+    // Entering the user's number via wcin
     int number_account;
     if(username.empty())
     {
-        std::wcout << L"Enter the number account: ";
-        std::cin >> number_account;
+        wprintf(L"Enter the number account: ");
+        
+        std::wcin >> number_account;
 
-        // Очистка буфера
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        // Clearing the buffer wcin
+        std::wcin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         username = result[number_account];
     }
     
 
-    std::vector<std::wstring> req_types = { // Изменен на wstring
+    std::vector<std::wstring> req_types = { 
         L"Digits (y/n): ",
         L"Ascii letters (y/n): ",
-        L"Russian letters (y/n): ",
         L"Special characters (y/n): "
     };
 
@@ -217,46 +214,40 @@ int main(int argc, char* argv[]) {
     {
         int level = 0;
         while (true) {
-            if (level > 3) {
+            if (level > 2) {
                 break;
             }
 
             level++;
             std::wstring digits;
-            // getline(wcin >> ws, digits); // Используется wcin
-            std::wcout << req_types[level - 1]; // Используется wcout
             
-            // int result = !std::getline(wcin, digits);
-            //std::cout << "result: " << result << std::endl;
+            wprintf(L"%ls", req_types[level - 1].c_str());
+            
             if (!std::getline(std::wcin, digits)) {
 
-                // Если ввод сломан (например, Ctrl+C), выходим
-                std::wcout << L"\nInput interrupted. Exiting.\n";
-                return -1;
+                // If the input is broken (for example, Ctrl+C), exit
+                wprintf(L"\nInput interrupted. Exiting.\n");
                 
+                return -1;
             }
             
-            
-            if (digits == L"y" || digits == L"Y" || digits == L"д" || digits == L"Д") {
+            if (digits == L"y" || digits == L"Y") {
                 if (level == 1) {
-                    charset += L"0123456789"; // Добавлен префикс L для Unicode
+                    charset += L"0123456789"; // Digits
                 } else if (level == 2) {
-                    charset += L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                } else if (level == 3) {
-                    charset += L"абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-                } else if (level == 4) {
-                    charset += L"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+                    charset += L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Latin alphabet
+                }  else if (level == 3) {
+                    charset += L"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"; // Special symbols
                 }
                 
-            } else if (digits == L"n" || digits == L"N" || digits == L"н" || digits == L"Н") {
+            } else if (digits == L"n" || digits == L"N") {
                 continue;
             } else {
-                std::wcout << L"You entered it incorrectly! Enter 'y' or 'n'." <<  std::endl;
+                wprintf(L"You entered it incorrectly! Enter 'y' or 'n'.\n");
                 level--;
-                continue;
-                
             }
         }
+        
     }
     
 
@@ -265,11 +256,9 @@ int main(int argc, char* argv[]) {
     sort(triedPasswords.begin(), triedPasswords.end());
 
     while (true) {
-
-        std::wcout << L"I'm starting to check passwords. " << currentLength << L" characters..." << std::endl;
+        wprintf(L"I'm starting to check passwords. %i  characters...\n", currentLength);
         std::thread mythread2(generateCombinations, std::ref(charset), currentLength, L"", username, std::ref(triedPasswords));
         mythread2.join();
-        
         currentLength++;
     }
 
@@ -303,12 +292,16 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
         {
             DWORD Error = GetLastError();
             triedPasswords.push_back(line_combination);
-            std::wcout << L"Error : " << Error << L" : " <<L" Attempt number " << triedPasswords.size() << L" for password: " << line_combination << std::endl;
+            wprintf(L"Error : %i : Attempt number %i for password: %ls \n", Error, triedPasswords.size(), line_combination.c_str());
+            
             if (attemptLogin(username, line_combination)) {
-                std::wcout << L"Success! Password found: " << line_combination << std::endl;
+                wprintf(L"Success! Password found: %ls \n", line_combination.c_str());
+                
                 clock_t end = clock();
                 double elapsed = static_cast<double>(end - start) / CLOCKS_PER_SEC;
-                std::wcout << L"The search is completed. Total lead time: " << elapsed << L" seconds." << std::endl;
+                
+                wprintf(L"The search is completed. Total lead time: %.2lf seconds.\n", elapsed);
+
                 system("pause");
                 exit(0);
             } else
@@ -316,12 +309,13 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
                 
                 if(Error == 1909)
                 {
-                    std::wcout << L"Error 1909 means that your account has been blocked\n\tthe end of the work"<< std::endl;
-                    std::wcout << L"Press Enter........";
+                    wprintf(L"Error 1909 means that your account has been blocked\n\tthe end of the work \n");
+                    
+                    system("pause");
                 
-                    std::wcin.get();
                     exit(0);
                 }
+
                 // the file will be saved once every 10 attempts.
                 tryed++;
                 if(tryed == 10)
@@ -339,7 +333,7 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
 
 BOOL WINAPI ConsoleHandler(DWORD signal) {
     if (signal == CTRL_C_EVENT) {
-        std::cout << "\nCaught Ctrl+C! Exit...\n";
+        wprintf(L"\nCaught Ctrl+C! Exit...\n");
         stop = true;
         exit(0);
         return TRUE;
