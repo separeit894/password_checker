@@ -19,7 +19,7 @@
 #include "attemptLogin/attemptLogin.h"
 
 
-std::wstring VERSION = L"3.3"; 
+std::wstring VERSION = L"3.4"; 
 
 clock_t start;
 std::string progressFile = "progress.txt";
@@ -28,10 +28,11 @@ int tryed = 0;
 std::atomic<bool> stop(false);
 
 std::wstring string_to_wstring(const std::string& str);
+std::string wstring_to_string(const std::wstring& str);
 
 BOOL WINAPI ConsoleHandler(DWORD signal);
 
-void generateCombinations(const std::wstring& charset, int length, std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords); 
+void generateCombinations(const std::wstring& charset, int length, std::wstring locale,std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords); 
 
 std::vector<std::wstring> exec(const char* cmd)
 {
@@ -71,7 +72,8 @@ int main(int argc, char* argv[]) {
     
     bool debug = false;
     std::wstring username; // creating a variable to which the account username will be passed
-    std::wstring charset ;  // creating a variable that will be passed the characters that will be used in combinations.
+    std::wstring charset;  // creating a variable that will be passed the characters that will be used in combinations.
+    std::wstring enable_locale;
     for(int i = 1; i < argc; ++i)
     {
         if(strcmp(argv[i], "--debug") == 0)
@@ -109,6 +111,19 @@ int main(int argc, char* argv[]) {
             wprintf(L"Password Checker C++ V-%ls \n", VERSION.c_str());
 
             exit(0);
+        } else if (strcmp(argv[i], "--enable-locale") == 0){
+            int b = ++i;
+            if(b < argc && argv[b][0] != '-')
+            {
+                enable_locale = string_to_wstring(argv[b]);
+                setlocale(LC_ALL, wstring_to_string(enable_locale).c_str());
+                
+            } else
+            {
+                wprintf(L"Entered locale is incorrect!\n");
+
+                exit(0);
+            }
         } else if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "/?") == 0)
         {
             wprintf(L"Usage: password_checker [options]\n\n");
@@ -117,13 +132,15 @@ int main(int argc, char* argv[]) {
             wprintf(L"  It works if the user has a null value of \"lock threshold value\" in secpol.msc.\n");
             wprintf(L"  Read more on Github: https://github.com/separeit894/password_checker/tree/password_checker_c%2B%2B\n\n");
             wprintf(L"Options:\n");
-            wprintf(L"  --debug              Enable debug mode.\n");
-            wprintf(L"  --version, -v        Show the program version.\n");
-            wprintf(L"  --username USERNAME  Specify the username.\n");
-            wprintf(L"  --charset CHARSET    Specify the character set.\n");
-            wprintf(L"  --help, /?           Show this help message.\n");
+            wprintf(L"  --debug                  Enable debug mode.\n");
+            wprintf(L"  --version, -v            Show the program version.\n");
+            wprintf(L"  --username USERNAME      Specify the username.\n");
+            wprintf(L"  --charset CHARSET        Specify the character set.\n");
+            wprintf(L"  --enable-locale LOCALE   Add a locale.\n");
+            wprintf(L"  --help, /?               Show this help message.\n");
             wprintf(L"\nExamples:\n");
             wprintf(L"  password_checker --username JohnDoe --charset 01234\n");
+            wprintf(L"  password_checker --enable-locale ru_RU.UTF-8\n");
             wprintf(L"  password_checker --debug\n");
             wprintf(L"  password_checker --version\n");
             wprintf(L"  password_checker\n");
@@ -173,7 +190,14 @@ int main(int argc, char* argv[]) {
         {
             wprintf(L"File %ls find here! \n", string_to_wstring(progressFile).c_str());
         }
-        loadProgress(username, charset, currentLength, triedPasswords, progressFile);
+        loadProgress(username, enable_locale, charset, currentLength, triedPasswords, progressFile);
+        std::wcout << L"enable_locale->" << enable_locale << L"<-enable locale" << std::endl;
+        if(!enable_locale.empty())
+        {
+            std::wcout << L"if else enable locle" << std::endl;
+            setlocale(LC_ALL, wstring_to_string(enable_locale).c_str());
+            std::wcout << L"setlocale yes" << std::endl;
+        }
     }
     else
     {
@@ -183,6 +207,7 @@ int main(int argc, char* argv[]) {
         }
         
     }        
+    
 
     std::wstring link_github_page_password_checker = L"https://github.com/separeit894/password_checker";
     std::wstring my_github_page = L"https://github.com/separeit894";
@@ -257,7 +282,8 @@ int main(int argc, char* argv[]) {
 
     while (true) {
         wprintf(L"I'm starting to check passwords. %i  characters...\n", currentLength);
-        std::thread mythread2(generateCombinations, std::ref(charset), currentLength, L"", username, std::ref(triedPasswords));
+        
+        std::thread mythread2(generateCombinations, std::ref(charset), currentLength, enable_locale, L"", username, std::ref(triedPasswords));
         mythread2.join();
         currentLength++;
     }
@@ -267,7 +293,7 @@ int main(int argc, char* argv[]) {
 
 
 
-void generateCombinations(const std::wstring& charset, int length, std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords) 
+void generateCombinations(const std::wstring& charset, int length,  std::wstring locale,std::wstring prefix, const std::wstring& username, std::vector<std::wstring>& triedPasswords) 
 {
     
     std::vector<std::wstring> combinations;
@@ -320,7 +346,8 @@ void generateCombinations(const std::wstring& charset, int length, std::wstring 
                 tryed++;
                 if(tryed == 10)
                 {
-                    saveProgress(charset, username, length, triedPasswords, progressFile);
+                    
+                    saveProgress(charset, username, locale, length, triedPasswords, progressFile);
                     tryed = 0;
                 }
                 
@@ -346,4 +373,10 @@ std::wstring string_to_wstring(const std::string& str)
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     return converter.from_bytes(str);
+}
+
+std::string wstring_to_string(const std::wstring& str)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.to_bytes(str);
 }

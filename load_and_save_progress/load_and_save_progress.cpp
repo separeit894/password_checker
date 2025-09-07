@@ -4,7 +4,7 @@
 #include <string>
 
 
-void loadProgress(std::wstring& username, std::wstring& charset, int& currentLength, std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
+void loadProgress(std::wstring& username, std::wstring &locale, std::wstring& charset, int& currentLength, std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
     std::wifstream file(progressFile);
     if (file.is_open()) {
         std::wstring line;
@@ -12,6 +12,11 @@ void loadProgress(std::wstring& username, std::wstring& charset, int& currentLen
             if(line.find(L"username:")== 0)
             {
                 username = line.substr(10);
+            }
+            
+            if(line.find(L"locale:") == 0)
+            {
+                locale = line.substr(8);
             }
 
             if(line.find(L"charset:") == 0)
@@ -32,10 +37,11 @@ void loadProgress(std::wstring& username, std::wstring& charset, int& currentLen
     }
 }
 
-void saveProgress(const std::wstring charset, const std::wstring username, int currentLength, const std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
+void saveProgress(const std::wstring charset, const std::wstring username, std::wstring locale,int currentLength, const std::vector<std::wstring>& triedPasswords, const std::string& progressFile) {
     std::wofstream file(progressFile);
     if (file.is_open()) {
         file << "username: " << username << std::endl;
+        file << "locale: " << locale << std::endl;
         file << L"charset: " << charset << std::endl;
         file << L"length: " << currentLength << std::endl;
         for (const std::wstring& password : triedPasswords) {
