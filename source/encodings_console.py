@@ -41,4 +41,3 @@ def get_encoding_name(code_page):
     """Возвращает имя кодировки по номеру Windows Code Page"""
     return WINDOWS_CODE_PAGES.get(code_page)
 
-# Примеры:

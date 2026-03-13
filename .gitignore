@@ -10,3 +10,4 @@ Makefile
 exe
 exe_dir
 build
+venv

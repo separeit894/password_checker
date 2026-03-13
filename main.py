@@ -15,7 +15,7 @@ from source import list_users
 from source import load_progress, save_progress
 from source import charactes_password
 
-version = "4.7"
+version = "4.8"
 print(f"Версия: {version}")
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
@@ -80,8 +80,6 @@ else:
         if number is None:
             number = int(input("Напишите номер учетной записи: "))
         
-        
-
     level = 0
     while True:
         if characters == "":
@@ -104,6 +102,7 @@ def main():
             # Циклом создаем новые пароли, characters это тот список символов, которые вы выбрали в начале
             for password in itertools.product(characters, repeat=i):
                 password = "".join(password)
+                
                 if not password in tryed:
                     try_id += 1
                     # Попытка входа в систему
@@ -154,7 +153,6 @@ def main():
                                 print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
                                 input("Нажмите на Enter........ ")
                                 sys.exit()
-
 
                     # Сохраняем прогресс после каждой попытки
                     save_progress(account, characters, i, try_id, tryed)
