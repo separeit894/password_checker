@@ -11,3 +11,5 @@ exe
 exe_dir
 build
 venv
+main.spec
+test/__pycache__

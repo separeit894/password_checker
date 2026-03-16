@@ -9,31 +9,52 @@ import time
 import json
 import os
 import sys
-
+import argparse
 
 from source import list_users
 from source import load_progress, save_progress
 from source import charactes_password
+from source import LogonUser
 
-version = "4.8"
+from test import authenticate_user, EnterUserNameAndPassword
+
+epilog = """
+Password Checker is a program that logs into a Windows account by iterating through the characters given to it by the user.\n
+It works if the user has a null value of \"lock threshold value\" in secpol.msc.\n
+Read more on Github: https://github.com/separeit894/password_checker/
+"""
+
+version = "4.9"
+parser = argparse.ArgumentParser(description=epilog)
+
+
+parser.add_argument("-v", "--version", action="store_true", help="show version this program")
+parser.add_argument("-t", "--test", action="store_true", help="runs a script that checks the username and password for authentication.")
+
+args = parser.parse_args()
+
+if args.version:
+    print(f"Password Checker Python : Version {version}")
+    print("About this program : https://github.com/separeit894/password_checker")
+    sys.exit(0)
+elif args.test:
+    username, password = EnterUserNameAndPassword()
+    authenticate_user(username, password)
+    sys.exit(0) 
+
+
 print(f"Версия: {version}")
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
 print(f"Автор: separeit894\n"
       f"Ccылка на github: https://github.com/separeit894/\n")
 
+
+
+
 users_list = list_users()
 
-# Эта функция потребуется для того, чтобы консоль могла работать с кирилицей
-LogonUser = ctypes.windll.advapi32.LogonUserW
-LogonUser.argtypes = (
-    wintypes.LPCWSTR,  # Имя пользователя
-    wintypes.LPCWSTR,  # Домен
-    wintypes.LPCWSTR,  # Пароль
-    wintypes.DWORD,    # Тип входа
-    wintypes.DWORD,    # Провайдер
-    ctypes.POINTER(wintypes.HANDLE)  # Токен
-)
+
 
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
