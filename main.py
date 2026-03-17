@@ -24,12 +24,20 @@ It works if the user has a null value of \"lock threshold value\" in secpol.msc.
 Read more on Github: https://github.com/separeit894/password_checker/
 """
 
-version = "4.9"
+characters = ''
+# Параметр по умолчанию, изменять можете тут или в файле progress.json
+print_try = "y"
+account = None
+
+version = "5.0"
 parser = argparse.ArgumentParser(description=epilog)
 
 
 parser.add_argument("-v", "--version", action="store_true", help="show version this program")
-parser.add_argument("-t", "--test", action="store_true", help="runs a script that checks the username and password for authentication.")
+parser.add_argument("-t", "--test", "--testAuth", action="store_true", help="runs a script that checks the username and password for authentication.")
+parser.add_argument("-c", "--charset", type=str, help="Specifies the characters that will be used to guess the password.")
+parser.add_argument("--print-try",  choices=['y', 'n'],  help="If you select 'y', the match attempts will be shown every 250 matches. If 'n', each attempt will be shown. print")
+parser.add_argument("-u", "--user", type=str, help="Enter the username for which the password will be selected")
 
 args = parser.parse_args()
 
@@ -37,45 +45,42 @@ if args.version:
     print(f"Password Checker Python : Version {version}")
     print("About this program : https://github.com/separeit894/password_checker")
     sys.exit(0)
-elif args.test:
+
+if args.test:
     username, password = EnterUserNameAndPassword()
     authenticate_user(username, password)
     sys.exit(0) 
 
+if args.charset:
+    characters = args.charset
+    
+if args.print_try:
+    print_try = args.print_try
+    
+if args.user:
+    account = args.user
 
-print(f"Версия: {version}")
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
 print(f"Автор: separeit894\n"
       f"Ccылка на github: https://github.com/separeit894/\n")
 
-
-
-
 users_list = list_users()
-
-
 
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
 
-characters = ''
-
 progress_file = "progress.json"
-
-# Параметр по умолчанию, изменять можете тут или в файле progress.json
-print_try = "y"
-print()
 
 # Загрузка прогресса
 progress = load_progress()
 if progress:
-    account = progress['account']
+    account = args.user if args.user else progress['account']
     i = progress['length']
     try_id = progress['try_id']
     tryed = progress['tryed']
-    characters = progress['characters']
-    print_try = progress['print_try']
+    characters = args.charset if args.charset else progress['characters']
+    print_try = str(args.print_try) if args.print_try else progress['print_try']
 else:
     i = 1
     try_id = 0
@@ -83,8 +88,7 @@ else:
     
     # Указываем учетную запись пользователя
     number = None
-    account = None
-    find_account = False
+    find_account = True if args.user else False
     
     # Цикл будет действовать пока find_account будет false
     while not find_account:
@@ -176,14 +180,14 @@ def main():
                                 sys.exit()
 
                     # Сохраняем прогресс после каждой попытки
-                    save_progress(account, characters, i, try_id, tryed)
+                    save_progress(account, print_try, characters, i, try_id, tryed)
 
             # Увеличиваем длину пароля, если не нашли подходящий
             if not found:
                 i += 1
     # Если пользователь хочет прервать процесс
     except KeyboardInterrupt:
-        save_progress(account, characters, i, try_id, tryed)
+        save_progress(account, print_try, characters, i, try_id, tryed)
         print("Программа прервана. Прогресс сохранен.")
         input("Нажмите на Enter........ ")
 

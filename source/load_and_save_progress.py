@@ -7,12 +7,12 @@ from .config import MY_ENCODING
 
 progress_file = "progress.json"
 # Функция для сохранения прогресса
-def save_progress(account, characters, length, try_id, tryed):
+def save_progress(account, print_try,characters, length, try_id, tryed):
     with open(progress_file, 'w', encoding=MY_ENCODING) as f:
         json.dump(
             {
                 "account": account,
-                'print_try': "y",
+                'print_try': print_try,
                 'characters': characters,
                 'length': length,
                 'try_id': try_id,
