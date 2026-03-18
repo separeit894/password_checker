@@ -1,7 +1,9 @@
 venv64
 venv32
 progress.json
-source/__pycache__
+Characters/__pycache__
+core/__pycache__
+LoadAndSaveFiles/__pycache__
 output
 create venv.bat
 run_main.bat

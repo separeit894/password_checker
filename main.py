@@ -1,20 +1,17 @@
 import ctypes
 from ctypes import wintypes
-import win32security
-import subprocess
 import win32api
 import itertools
-import string
-import time
-import json
-import os
 import sys
 import argparse
 
-from source import list_users
-from source import load_progress, save_progress
-from source import charactes_password
-from source import LogonUser
+from core import list_users
+from core import LogonUser
+
+from LoadAndSaveFiles import load_progress, save_progress
+from LoadAndSaveFiles import loadGif
+
+from Characters import charactes_password
 
 from test import authenticate_user, EnterUserNameAndPassword
 
@@ -28,9 +25,17 @@ characters = ''
 # Параметр по умолчанию, изменять можете тут или в файле progress.json
 print_try = "y"
 account = None
+i = 1
 
-version = "5.0"
+version = "5.1"
 parser = argparse.ArgumentParser(description=epilog)
+
+subparsers = parser.add_subparsers(dest="command")
+parser_get = subparsers.add_parser('get', help="Get item value")
+parser_get.add_argument('param', choices=['file', 'encoding'], help="Gives the encoding that will be written to the file and a file in which the selection attempts will be recorded")
+parser_set = subparsers.add_parser("set", help="Set item value")
+parser_set.add_argument("--encoding", type=str, help="Set the encoding to use")
+parser_set.add_argument("--file", type=str, help="Example : test.json")
 
 
 parser.add_argument("-v", "--version", action="store_true", help="show version this program")
@@ -38,6 +43,8 @@ parser.add_argument("-t", "--test", "--testAuth", action="store_true", help="run
 parser.add_argument("-c", "--charset", type=str, help="Specifies the characters that will be used to guess the password.")
 parser.add_argument("--print-try",  choices=['y', 'n'],  help="If you select 'y', the match attempts will be shown every 250 matches. If 'n', each attempt will be shown. print")
 parser.add_argument("-u", "--user", type=str, help="Enter the username for which the password will be selected")
+parser.add_argument("-l", "--length", type=int, help="Enter this argument if you know the password length.")
+parser.add_argument("-load-gif", "--load-gif", action="store_true", help="Shows a gif file that disables the retry limiter.")
 
 args = parser.parse_args()
 
@@ -59,6 +66,34 @@ if args.print_try:
     
 if args.user:
     account = args.user
+    
+if args.length:
+    i = args.length
+
+if args.command == "get":
+    if args.param == "encoding":
+        from core import MY_ENCODING
+        print(f"Encoding used : {MY_ENCODING}")
+        sys.exit(0)
+        
+    elif args.param == "file":
+        from core import PROGRESS_FILE
+        print(f"File used : {PROGRESS_FILE}")
+        sys.exit(0)
+        
+elif args.command == "set":
+    if args.encoding:
+        print(f"{type(args.encoding)} : {args.encoding}")
+        from core import set_encoding
+        set_encoding(args.encoding)
+    if args.file:
+        from core import set_file
+        set_file(args.file)
+        
+    
+if args.load_gif:
+    loadGif()
+    sys.exit(0)
 
 
 print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
@@ -70,19 +105,19 @@ users_list = list_users()
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
 
-progress_file = "progress.json"
+from core import PROGRESS_FILE
 
 # Загрузка прогресса
 progress = load_progress()
 if progress:
     account = args.user if args.user else progress['account']
-    i = progress['length']
+    i = args.length if args.length else progress['length']
     try_id = progress['try_id']
     tryed = progress['tryed']
     characters = args.charset if args.charset else progress['characters']
     print_try = str(args.print_try) if args.print_try else progress['print_try']
 else:
-    i = 1
+    i = args.length if args.length else 1
     try_id = 0
     tryed = []
     

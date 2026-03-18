@@ -12,7 +12,7 @@ def list_users():
         encoding_result = subprocess.run(['cmd', '/c', 'chcp'], capture_output=True, text=True, check=True)
         res = encoding_result.stdout.split(": ")[1].split("\n")[0]
         res_name = get_encoding_name(int(res))
-        print(f"encoding result: {res}, {res_name}")
+        print(f"The encoding used: {res} : {res_name}")
         
         result = subprocess.run(['powershell', '-Command', 'Get-WmiObject', '-Class Win32_UserAccount', '-Filter "LocalAccount=True" | Select-Object Name'], capture_output=True, text=True, check=True, encoding=res_name, errors="ignore")
         

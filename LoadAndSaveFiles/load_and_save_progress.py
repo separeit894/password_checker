@@ -2,13 +2,12 @@ import json
 import os
 import sys
 
-from .config import MY_ENCODING
 
-
-progress_file = "progress.json"
 # Функция для сохранения прогресса
 def save_progress(account, print_try,characters, length, try_id, tryed):
-    with open(progress_file, 'w', encoding=MY_ENCODING) as f:
+    from core import MY_ENCODING
+    from core import PROGRESS_FILE
+    with open(PROGRESS_FILE, 'w', encoding=MY_ENCODING) as f:
         json.dump(
             {
                 "account": account,
@@ -25,19 +24,21 @@ def save_progress(account, print_try,characters, length, try_id, tryed):
 # Функция для загрузки прогресса
 def load_progress():
     try:
+        from core import MY_ENCODING
+        from core import PROGRESS_FILE
         # Если файл с прогрессом существует, то он возвращает данные из этого файла
-        if os.path.exists(progress_file):
-            with open(progress_file, 'r', encoding=MY_ENCODING) as f:
+        if os.path.exists(PROGRESS_FILE):
+            with open(PROGRESS_FILE, 'r', encoding=MY_ENCODING) as f:
                 return json.load(f)
         else:
-            if not os.path.isfile(progress_file):
+            if not os.path.isfile(PROGRESS_FILE):
                 # Если файл не существует, создаем его с пустым объектом
-                with open(progress_file, 'w') as f:
+                with open(PROGRESS_FILE, 'w', encoding=MY_ENCODING) as f:
                     json.dump({}, f, indent=4)  # Записываем пустой объект в файл
                 # print(f"Файл '{progress_file}' был создан.")
 
     except FileNotFoundError:
-        print("Файл 'progress.json' не найден.")
+        print(f"Файл {PROGRESS_FILE} не найден.")
         return None
     except json.JSONDecodeError as e:
         print(f"Ошибка декодирования JSON: {e}")

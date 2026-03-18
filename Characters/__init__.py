@@ -1,0 +1,1 @@
+from .characters_for_password import charactes_password

@@ -1,0 +1,68 @@
+import sys
+import os
+
+from pathlib import Path
+from PIL import Image
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
+import pygame
+
+def loadGif():
+    if getattr(sys, 'frozen', False):
+        base_path = Path(sys._MEIPASS)
+        print(f"EXE BASE_PATH : {base_path}")
+        gif_path = base_path / 'assets' / 'how_to_disable_the_lock_threshold.gif'
+    else:
+        base_path = Path(__file__).parent
+        print(f"CODE BASE_PATH : {base_path}")
+
+        gif_path = base_path / '..' / 'assets' / 'how_to_disable_the_lock_threshold.gif'
+
+    if gif_path.exists():
+        print("GIF файл найден!")
+        
+        
+        # Инициализация pygame
+        pygame.init()
+        pygame.display.set_caption("Как отключить ограничитель попыток")
+        # Открытие GIF с помощью Pillow
+        gif = Image.open(gif_path)
+
+        # Получение кадров
+        frames = []
+        try:
+            while True:
+                frames.append(gif.copy())
+                gif.seek(gif.tell() + 1)
+        except EOFError:
+            pass
+
+        # Настройка окна
+        screen = pygame.display.set_mode((gif.width, gif.height))
+        
+        clock = pygame.time.Clock()
+        running = True
+        frame_index = 0
+
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            # Отображение текущего кадра
+            screen.fill((0, 0, 0))  # Очистка экрана
+            frame = frames[frame_index]
+            frame = pygame.image.fromstring(frame.tobytes(), frame.size, frame.mode)
+            screen.blit(frame, (0, 0))
+            pygame.display.flip()
+
+            # Переход к следующему кадру
+            frame_index = (frame_index + 1) % len(frames)
+            clock.tick(gif.info['duration'] // 10)  # Примените окончательное время между кадрами
+
+        pygame.quit()
+    else:
+        print("GIF файл не найден.")
+
+if __name__ == "__main__":
+    loadGif()
