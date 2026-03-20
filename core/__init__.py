@@ -1,4 +1,4 @@
-from .config import MY_ENCODING, PROGRESS_FILE, set_encoding, set_file
+from .config import MY_ENCODING, PROGRESS_FILE, CheckingExeOrCode,set_encoding, set_file
 from .list_users import list_users
 
 from ctypes import wintypes

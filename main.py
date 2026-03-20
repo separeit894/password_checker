@@ -27,12 +27,16 @@ print_try = "y"
 account = None
 i = 1
 
-version = "5.1"
+version = "5.2"
 parser = argparse.ArgumentParser(description=epilog)
 
 subparsers = parser.add_subparsers(dest="command")
 parser_get = subparsers.add_parser('get', help="Get item value")
-parser_get.add_argument('param', choices=['file', 'encoding'], help="Gives the encoding that will be written to the file and a file in which the selection attempts will be recorded")
+#parser_get.add_argument('param', choices=['file', 'encoding', 'gif'], help="Gives the encoding that will be written to the file and a file in which the selection attempts will be recorded")
+parser_get.add_argument('--file', action="store_true", help='a file in which the selection attempts will be recorded')
+parser_get.add_argument('--encoding', action="store_true", help="Gives the encoding that will be written to the file")
+parser_get.add_argument('--gif', action='store_true', help="Use if you have an executable file and the gif doesn't launch with the -load-gif (--load-gif) argument.")
+
 parser_set = subparsers.add_parser("set", help="Set item value")
 parser_set.add_argument("--encoding", type=str, help="Set the encoding to use")
 parser_set.add_argument("--file", type=str, help="Example : test.json")
@@ -71,14 +75,19 @@ if args.length:
     i = args.length
 
 if args.command == "get":
-    if args.param == "encoding":
+    if args.encoding:
         from core import MY_ENCODING
         print(f"Encoding used : {MY_ENCODING}")
         sys.exit(0)
         
-    elif args.param == "file":
+    if args.file:
         from core import PROGRESS_FILE
         print(f"File used : {PROGRESS_FILE}")
+        sys.exit(0)
+        
+    if args.gif:
+        from LoadAndSaveFiles import UnloadGif
+        UnloadGif()
         sys.exit(0)
         
 elif args.command == "set":

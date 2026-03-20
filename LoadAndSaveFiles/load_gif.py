@@ -1,30 +1,22 @@
-import sys
 import os
 
-from pathlib import Path
 from PIL import Image
+from core import CheckingExeOrCode
 
+# Отключаем надписи "pygame 2.x.x и т.д."
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
 
 def loadGif():
-    if getattr(sys, 'frozen', False):
-        base_path = Path(sys._MEIPASS)
-        print(f"EXE BASE_PATH : {base_path}")
-        gif_path = base_path / 'assets' / 'how_to_disable_the_lock_threshold.gif'
-    else:
-        base_path = Path(__file__).parent
-        print(f"CODE BASE_PATH : {base_path}")
-
-        gif_path = base_path / '..' / 'assets' / 'how_to_disable_the_lock_threshold.gif'
-
+    
+    gif_path = CheckingExeOrCode()
     if gif_path.exists():
         print("GIF файл найден!")
-        
         
         # Инициализация pygame
         pygame.init()
         pygame.display.set_caption("Как отключить ограничитель попыток")
+
         # Открытие GIF с помощью Pillow
         gif = Image.open(gif_path)
 
@@ -38,7 +30,8 @@ def loadGif():
             pass
 
         # Настройка окна
-        screen = pygame.display.set_mode((gif.width, gif.height))
+        screen = pygame.display.set_mode((gif.width, gif.height), pygame.SCALED | pygame.RESIZABLE)
+        
         
         clock = pygame.time.Clock()
         running = True

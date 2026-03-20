@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 
 # Функция для сохранения прогресса
