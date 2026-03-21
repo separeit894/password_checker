@@ -4,15 +4,15 @@ from PIL import Image
 from core import CheckingExeOrCode
 
 # Отключаем надписи "pygame 2.x.x и т.д."
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 
-def loadGif():
-    
+
+def load_gif():
     gif_path = CheckingExeOrCode()
     if gif_path.exists():
         print("GIF файл найден!")
-        
+
         # Инициализация pygame
         pygame.init()
         pygame.display.set_caption("Как отключить ограничитель попыток")
@@ -30,9 +30,10 @@ def loadGif():
             pass
 
         # Настройка окна
-        screen = pygame.display.set_mode((gif.width, gif.height), pygame.SCALED | pygame.RESIZABLE)
-        
-        
+        screen = pygame.display.set_mode(
+            (gif.width, gif.height), pygame.SCALED | pygame.RESIZABLE
+        )
+
         clock = pygame.time.Clock()
         running = True
         frame_index = 0
@@ -51,11 +52,14 @@ def loadGif():
 
             # Переход к следующему кадру
             frame_index = (frame_index + 1) % len(frames)
-            clock.tick(gif.info['duration'] // 10)  # Примените окончательное время между кадрами
+            clock.tick(
+                gif.info["duration"] // 10
+            )  # Примените окончательное время между кадрами
 
         pygame.quit()
     else:
         print("GIF файл не найден.")
 
+
 if __name__ == "__main__":
-    loadGif()
+    load_gif()

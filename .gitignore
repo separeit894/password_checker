@@ -1,9 +1,9 @@
 venv64
 venv32
 progress.json
-Characters/__pycache__
+characters/__pycache__
 core/__pycache__
-LoadAndSaveFiles/__pycache__
+load_and_save_files/__pycache__
 output
 create venv.bat
 run_main.bat
@@ -15,3 +15,4 @@ build
 venv
 main.spec
 test/__pycache__
+.ruff_cache
