@@ -1,7 +1,7 @@
 import os
 
 from PIL import Image
-from core import CheckingExeOrCode
+from core import checking_exe_or_code
 
 # Отключаем надписи "pygame 2.x.x и т.д."
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
@@ -9,7 +9,7 @@ import pygame
 
 
 def load_gif():
-    gif_path = CheckingExeOrCode()
+    gif_path = checking_exe_or_code()
     if gif_path.exists():
         print("GIF файл найден!")
 

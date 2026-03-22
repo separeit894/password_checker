@@ -37,7 +37,7 @@ print_try = "y"
 account = None
 i = 1
 
-version = "5.3"
+VERSION = "5.3.1"
 parser = argparse.ArgumentParser(description=epilog)
 
 subparsers = parser.add_subparsers(dest="command")
@@ -82,6 +82,7 @@ parser.add_argument(
 parser.add_argument(
     "--print-try",
     choices=["y", "n"],
+    type=str,
     help="If you select 'y', the match attempts will be shown every 250 matches. If 'n', each attempt will be shown. print",
 )
 parser.add_argument(
@@ -106,7 +107,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 if args.version:
-    print(f"Password Checker Python : Version {version}")
+    print(f"Password Checker Python : Version {VERSION}")
     print("About this program : https://github.com/separeit894/password_checker")
     sys.exit(0)
 
@@ -141,9 +142,9 @@ if args.command == "get":
         sys.exit(0)
 
     if args.gif:
-        from load_and_save_files import UnloadGif
+        from load_and_save_files import unload_gif
 
-        UnloadGif()
+        unload_gif()
         sys.exit(0)
 
 elif args.command == "set":
@@ -181,7 +182,7 @@ if progress:
     try_id = progress["try_id"]
     tryed = progress["tryed"]
     characters = args.charset if args.charset else progress["characters"]
-    print_try = str(args.print_try) if args.print_try else progress["print_try"]
+    print_try = args.print_try if args.print_try else progress["print_try"]
 else:
     i = args.length if args.length else 1
     try_id = 0
