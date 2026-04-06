@@ -4,6 +4,9 @@ from pathlib import Path
 MY_ENCODING = "utf-8"
 PROGRESS_FILE = "progress.json"
 
+LOGON32_LOGON_INTERACTIVE = 2
+LOGON32_PROVIDER_DEFAULT = 0
+
 
 def set_encoding(encoding):
     global MY_ENCODING
@@ -27,3 +30,4 @@ def checking_exe_or_code() -> str:
         gif_path = base_path / ".." / "assets" / "how_to_disable_the_lock_threshold.gif"
 
     return gif_path
+

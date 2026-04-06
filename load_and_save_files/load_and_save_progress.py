@@ -3,14 +3,14 @@ import os
 
 
 # Функция для сохранения прогресса
-def save_progress(account, print_try, characters, length, try_id, tryed):
+def save_progress(username, print_try, characters, length, try_id, tryed):
     from core import MY_ENCODING
     from core import PROGRESS_FILE
 
     with open(PROGRESS_FILE, "w", encoding=MY_ENCODING) as f:
         json.dump(
             {
-                "account": account,
+                "username": username,
                 "print_try": print_try,
                 "characters": characters,
                 "length": length,

@@ -4,12 +4,17 @@ from ctypes import wintypes
 import win32api
 import itertools
 import sys
+import os
 import argparse
+import mmap
 
 from core import (
     list_users,
     LogonUser,
-    PROGRESS_FILE
+    MY_ENCODING,
+    PROGRESS_FILE,
+    LOGON32_PROVIDER_DEFAULT,
+    LOGON32_LOGON_INTERACTIVE
 )
 
 from load_and_save_files import (
@@ -25,7 +30,7 @@ from test import (
     enter_username_and_password
 )
 
-epilog = """
+EPILOG = """
 Password Checker is a program that logs into a Windows account by iterating through the characters given to it by the user.\n
 It works if the user has a null value of \"lock threshold value\" in secpol.msc.\n
 Read more on Github: https://github.com/separeit894/password_checker/
@@ -34,11 +39,13 @@ Read more on Github: https://github.com/separeit894/password_checker/
 characters = ""
 # Параметр по умолчанию, изменять можете тут или в файле progress.json
 print_try = "y"
-account = None
+username = None
 i = 1
+step_save = 1
+wordlist_file = ...
 
-VERSION = "5.3.1"
-parser = argparse.ArgumentParser(description=epilog)
+VERSION = "5.4.0"
+parser = argparse.ArgumentParser(description=EPILOG)
 
 subparsers = parser.add_subparsers(dest="command")
 parser_get = subparsers.add_parser("get", help="Get item value")
@@ -104,11 +111,29 @@ parser.add_argument(
     help="Shows a gif file that disables the retry limiter.",
 )
 
+parser.add_argument(
+    "--step",
+    "--step-save",
+    type=int,
+    help="Determines after how many steps progress will be saved. By default, it immediately saves your progress after a completed attempt."
+)
+
+parser.add_argument(
+    "-w",
+    "--wordlist",
+    type=str,
+    help="The file from which passwords will be taken for brute-force cracking"
+)
+
+
 args = parser.parse_args()
 
+PASSWORD_CHECKER_PYTHON = f"Password Checker Python : Version {VERSION}"
+ABOUT_THIS_PROGRAM = "About this program : https://github.com/separeit894/password_checker"
+
 if args.version:
-    print(f"Password Checker Python : Version {VERSION}")
-    print("About this program : https://github.com/separeit894/password_checker")
+    print(PASSWORD_CHECKER_PYTHON)
+    print(ABOUT_THIS_PROGRAM)
     sys.exit(0)
 
 if args.test:
@@ -123,10 +148,17 @@ if args.print_try:
     print_try = args.print_try
 
 if args.user:
-    account = args.user
+    username = args.user
 
 if args.length:
     i = args.length
+    
+if args.step:
+    step_save = args.step
+    
+if args.wordlist:
+    characters = "wordlist"
+    wordlist_file = args.wordlist
 
 if args.command == "get":
     if args.encoding:
@@ -163,50 +195,64 @@ if args.load_gif:
     load_gif()
     sys.exit(0)
 
-
-print(
-    "Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n"
-)
-print("Автор: separeit894\nCcылка на github: https://github.com/separeit894/\n")
+THE_TEXT_ABOUT_THE_THRESHOLD_VALUE_OF_THE_LOCK = "Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n"
+print(THE_TEXT_ABOUT_THE_THRESHOLD_VALUE_OF_THE_LOCK)
+GITHUB_AUTHOR = "Автор: separeit894\nCcылка на github: https://github.com/separeit894/\n"
+print(GITHUB_AUTHOR)
 
 users_list = list_users()
 
-LOGON32_LOGON_INTERACTIVE = 2
-LOGON32_PROVIDER_DEFAULT = 0
 
 # Загрузка прогресса
-progress = load_progress()
-if progress:
-    account = args.user if args.user else progress["account"]
-    i = args.length if args.length else progress["length"]
-    try_id = progress["try_id"]
-    tryed = progress["tryed"]
-    characters = args.charset if args.charset else progress["characters"]
-    print_try = args.print_try if args.print_try else progress["print_try"]
-else:
-    i = args.length if args.length else 1
-    try_id = 0
-    tryed = []
+def previous_progress():
+    global username, i, try_id, tryed, characters, print_try
 
+    progress = load_progress()
+    if progress:
+        username = args.user if args.user else progress["username"]
+        i = args.length if args.length else progress["length"]
+        try_id = progress["try_id"]
+        tryed = progress["tryed"]
+        characters = args.charset if args.charset else progress["characters"]
+        print_try = args.print_try if args.print_try else progress["print_try"]
+        
+        return True
+    
+    else:
+        i = args.length if args.length else 1
+        try_id = 0
+        tryed = []
+        
+        return False
+        
+previous_progress()
+
+def enter_username_for_authentication():
+    global username
     # Указываем учетную запись пользователя
     number = None
-    find_account = True if args.user else False
+    find_username = True if args.user else False
 
-    # Цикл будет действовать пока find_account будет false
-    while not find_account:
+    # Цикл будет действовать пока find_username будет false
+    while not find_username:
         for i, line in enumerate(users_list):
             if number is None:
                 print(f"{i} : {line}")
             else:
                 if number == i:
-                    print("Учетная запись найдена")
-                    account = users_list[number]
-                    find_account = True
+                    username = users_list[number]
+                    print(f"Учетная запись {username} найдена")
+                    find_username = True
                     break
 
         if number is None:
             number = int(input("Напишите номер учетной записи: "))
 
+RESULT_CALL_FUNC_ENT_USR_FOR_AUTH = "\033[1m \nenter_username_for_authentification() : The username input function was not called due to the successful loading of progress \033[0m \n"
+enter_username_for_authentication() if not previous_progress() else print(RESULT_CALL_FUNC_ENT_USR_FOR_AUTH)
+
+def enter_characters_for_authentication():
+    global characters
     level = 0
     while True:
         if characters == "":
@@ -217,99 +263,99 @@ else:
         else:
             break
 
-username = account
+RESULT_CALL_FUNC_ENT_CHAR_FOR_AUTH = "\033[1m \nenter_characters_for_authentification() : The character input function was not called due to the successful loading of progress \033[0m \n"
+enter_characters_for_authentication() if not previous_progress() else print(RESULT_CALL_FUNC_ENT_CHAR_FOR_AUTH)
 
 found = False
 
+def result_user_account_login(username, password) -> bool:
+    # Попытка входа в систему
+    token = wintypes.HANDLE()
+    result_try = LogonUser(
+        username,
+        None,  # Локальная учетная запись
+        password,
+        LOGON32_LOGON_INTERACTIVE,
+        LOGON32_PROVIDER_DEFAULT,
+        ctypes.byref(token),
+    )
+    return result_try
+
+
+def attempt_to_login_to_account(username, password, try_id, tryed, found, comparsion_step_save):
+    
+    if password not in tryed:
+        try_id += 1
+        
+        result = result_user_account_login(username, password)
+        
+        # Если в файле progress.json, параметр print_try ( y )
+        succes_exit = f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}"
+        bad_selection = f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}"
+        show_all = (print_try == "y")
+        if result:
+            print(succes_exit)
+            found = True
+            os.system("pause")
+            sys.exit(0)
+        else:
+            if show_all or (try_id % 250 == 0):
+                print(bad_selection)
+                
+            tryed.append(password)
+                
+        if win32api.GetLastError() == 1909:
+            ERROR_1909 = "Ошибка 1909 означает, то что ваша учетная запись заблокировалась\nКонец работы"
+            print(ERROR_1909)
+            sys.exit(1909)
+
+        # Сохраняем прогресс после каждой попытки
+        if step_save == comparsion_step_save:
+            save_progress(username, print_try, characters, i, try_id, tryed)
+            comparsion_step_save = 1
+        else:
+            comparsion_step_save += 1
+            
+        return found, try_id, comparsion_step_save
 
 def main():
-    global found, i, try_id
+    global found, i, try_id, step_save
     try:
+        comparsion_step_save = 1 if not args.step else step_save
         # Цикл будет работать, пока не найдет подходящий пароль
         while not found:
-            # Циклом создаем новые пароли, characters это тот список символов, которые вы выбрали в начале
-            for password in itertools.product(characters, repeat=i):
-                password = "".join(password)
-
-                if password not in tryed:
-                    try_id += 1
-                    # Попытка входа в систему
-                    token = wintypes.HANDLE()
-                    result = LogonUser(
-                        username,
-                        None,  # Локальная учетная запись
-                        password,
-                        LOGON32_LOGON_INTERACTIVE,
-                        LOGON32_PROVIDER_DEFAULT,
-                        ctypes.byref(token),
-                    )
-
-                    # Если в файле progress.json, параметр print_try ( y )
-                    if print_try == "y":
-                        if result:
-                            print(
-                                f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}"
-                            )
-                            found = True
-                            input("Нажмите на Enter........ ")
-                            break
-                        else:
-                            print(
-                                f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}"
-                            )
-                            tryed.append(password)
-                            if win32api.GetLastError() == 1909:
-                                print(
-                                    "Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы"
-                                )
-                                input("Нажмите на Enter........ ")
-                                # Завершает работу
-                                sys.exit()
-
-                    # Если в файле progress.json, параметр print_try ( n )
-                    else:
-                        # Выводит в случае, если получилось войти в учетную запись
-                        if result:
-                            print(
-                                f"Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}"
-                            )
-                            found = True
-                            input("Нажмите на Enter........ ")
-                            break
-                        else:
-                            """
-                            Будет выводить попытки раз в 250 попыток
-                            Управлять этим параметром можно в файле progress.json
-                            Параметр print_try (y/n)
-                            """
-                            if try_id % 250 == 0:
-                                print(
-                                    f"Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}"
-                                )
-                            tryed.append(password)
-                            if win32api.GetLastError() == 1909:
-                                print(
-                                    "Ошибка 1909 означает, то что ваша учетная запись заблокировалась\n\tКонец работы"
-                                )
-                                input("Нажмите на Enter........ ")
-                                sys.exit()
-
-                    # Сохраняем прогресс после каждой попытки
-                    save_progress(account, print_try, characters, i, try_id, tryed)
-
+            
+            if not args.wordlist:
+                # Циклом создаем новые пароли, characters - это тот список символов, которые вы выбрали в начале
+                for password in itertools.product(characters, repeat=i):
+                    password = "".join(password)
+                    found, try_id, comparsion_step_save = attempt_to_login_to_account(username, password, try_id, tryed, found, comparsion_step_save) 
+                    
+            else:
+                with open(wordlist_file, 'r', encoding=MY_ENCODING) as f:
+                    with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as m:
+                        for line in iter(m.readline, b''):
+                            password = line.decode(MY_ENCODING).rstrip('\n')
+                            i = len(password)
+                            found, try_id, comparsion_step_save = attempt_to_login_to_account(username, password, try_id, tryed, found, comparsion_step_save) 
+                            if m.tell() == m.size():
+                                print("\nEND FILE FORDLIST\n")
+                                sys.exit(0)
+                    
             # Увеличиваем длину пароля, если не нашли подходящий
             if not found:
                 i += 1
+                
     # Если пользователь хочет прервать процесс
     except KeyboardInterrupt:
-        save_progress(account, print_try, characters, i, try_id, tryed)
+        save_progress(username, print_try, characters, i, try_id, tryed)
         print("Программа прервана. Прогресс сохранен.")
-        input("Нажмите на Enter........ ")
+        os.system("pause")
 
     # Если произошла ошибка
     except Exception as ex:
         print("Произошла ошибка: ", ex)
-        input("Нажмите на Enter........ ")
+        os.system("pause")
 
 
 if __name__ == "__main__":

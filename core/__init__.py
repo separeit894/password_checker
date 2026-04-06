@@ -1,6 +1,8 @@
 from .config import (
     MY_ENCODING as MY_ENCODING,
     PROGRESS_FILE,
+    LOGON32_LOGON_INTERACTIVE,
+    LOGON32_PROVIDER_DEFAULT,
     checking_exe_or_code,
     set_encoding,
     set_file,
@@ -21,4 +23,4 @@ LogonUser.argtypes = (
     ctypes.POINTER(wintypes.HANDLE),  # Токен
 )
 
-__all__ = ["PROGRESS_FILE", "checking_exe_or_code", "list_user", "set_encoding", "set_file", "LogonUser"]
+__all__ = ["PROGRESS_FILE", "LOGON32_LOGON_INTERACTIVE", "LOGON32_PROVIDER_DEFAULT", "checking_exe_or_code", "list_user", "set_encoding", "set_file", "LogonUser"]
