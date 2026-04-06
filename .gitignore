@@ -16,3 +16,4 @@ venv
 main.spec
 test/__pycache__
 .ruff_cache
+wordlist.txt
