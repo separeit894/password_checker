@@ -1,6 +1,6 @@
 # Password Checker
 
-![Recommended Python Versions](assets/recommended_python_version.svg)
+![Recommended Python Versions](assets/recommended_python_version.svg) ![License](assets/license.svg)
 
 **Проект, сделанный на Python, предназначен для проверки аутентификации пароля к учетной записи Windows.**
 
