@@ -1,8 +1,10 @@
 # Password Checker
 
-![Recommended Python Versions](assets/recommended_python_version.svg) ![License](assets/license.svg)
+![Recommended Python Versions](assets/recommended_python_version.svg) ![License](assets/license.svg) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/separeit894/password_checker/total?label=GitHub%20Downloads&color=%230099ff) ![SourceForge Downloads](https://img.shields.io/sourceforge/dt/password-checker?label=SourceForge%20Downloads&color=%23ff8400)
+<hr>
 
-**Проект, сделанный на Python, предназначен для проверки аутентификации пароля к учетной записи Windows.**
+Проект, сделанный на Python, предназначен для проверки аутентификации пароля к учетной записи Windows.
+<hr>
 
 ## Cодержание
 
