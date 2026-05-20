@@ -1,20 +1,15 @@
-venv64
-venv32
-progress.json
-characters/__pycache__
-core/__pycache__
-load_and_save_files/__pycache__
+venv*
+*.json
+__pycache__
 output
 create venv.bat
 run_main.bat
 instructions.txt
 Makefile
-exe
-exe_dir
+exe*
 build
-venv
-main.spec
-test/__pycache__
+*.spec
+__pycache__
 .ruff_cache
-wordlist.txt
+wordlist*.txt
 .vscode
