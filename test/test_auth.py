@@ -37,14 +37,13 @@ def authentificate_user(username: str, password: str):
         )
 
         if not result:
-            raise Exception(f"Ошибка аутентификации : {win32api.GetLastError()}")
+            raise Exception()
         else:
-            print("Аутентификация прошла успешно.")
+            print(f"[+] Аутентификация пользователя {username} по паролю {password} прошла успешно.")
 
-        return token
 
-    except Exception as e:
-        print(f"Ошибка: {e}")
+    except:
+        print(f"[-] Ошибка аутентификации : {win32api.GetLastError()}")
 
 
 if __name__ == "__main__":

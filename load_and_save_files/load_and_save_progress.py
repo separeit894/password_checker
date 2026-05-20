@@ -3,7 +3,7 @@ import os
 
 
 # Функция для сохранения прогресса
-def save_progress(username, print_try, characters, length, try_id, tryed):
+def save_progress(username, print_try, characters, length, try_id, tryed, mask=None,wordlist=None,):
     from core import MY_ENCODING
     from core import PROGRESS_FILE
 
@@ -13,6 +13,8 @@ def save_progress(username, print_try, characters, length, try_id, tryed):
                 "username": username,
                 "print_try": print_try,
                 "characters": characters,
+                "mask": mask,
+                "wordlist": wordlist,
                 "length": length,
                 "try_id": try_id,
                 "tryed": tryed,
@@ -37,15 +39,16 @@ def load_progress():
                 # Если файл не существует, создаем его с пустым объектом
                 with open(PROGRESS_FILE, "w", encoding=MY_ENCODING) as f:
                     json.dump({}, f, indent=4)  # Записываем пустой объект в файл
-                print(f"Файл '{PROGRESS_FILE}' был создан.")
+                print(f"[+] Файл '{PROGRESS_FILE}' был создан.\n")
+                return False
 
     except FileNotFoundError:
-        print(f"Файл {PROGRESS_FILE} не найден.")
-        return None
+        print(f"[-] Файл {PROGRESS_FILE} не найден.")
+        return False
     except json.JSONDecodeError as e:
-        print(f"Ошибка декодирования JSON: {e}")
-        return None
-    return None
+        print(f"[-] Ошибка декодирования JSON: {e}")
+        return False
+    
 
 
 if __name__ == "__main__":

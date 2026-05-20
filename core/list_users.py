@@ -15,7 +15,8 @@ def list_users():
         )
         res = encoding_result.stdout.split(": ")[1].split("\n")[0]
         res_name = get_encoding_name(int(res))
-        print(f"The encoding used: {res} : {res_name}")
+        UPPER_PRINT = f"[IMPORTANT INFO] The encoding used: {res} : {res_name}".upper()
+        print(UPPER_PRINT)
 
         result = subprocess.run(
             [
