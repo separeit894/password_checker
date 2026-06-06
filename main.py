@@ -8,14 +8,7 @@ import os
 import argparse
 import mmap
 
-from core import (
-    list_users,
-    LogonUser,
-    MY_ENCODING,
-    PROGRESS_FILE,
-    LOGON32_PROVIDER_DEFAULT,
-    LOGON32_LOGON_INTERACTIVE
-)
+from core import *
 
 from load_and_save_files import (
     load_progress, 
@@ -49,7 +42,7 @@ bl_value_wordlist = False
 mask = ""
 bl_value_mask = False
 
-VERSION = "5.5.0"
+VERSION = "5.5.1"
 parser = argparse.ArgumentParser(description=EPILOG)
 
 subparsers = parser.add_subparsers(dest="command")
@@ -138,8 +131,8 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-PASSWORD_CHECKER_PYTHON = f"Password Checker Python : Version {VERSION}"
-ABOUT_THIS_PROGRAM = "About this program : https://github.com/separeit894/password_checker"
+PASSWORD_CHECKER_PYTHON = f"{'Password Checker Python':<25}: Version {VERSION}"
+ABOUT_THIS_PROGRAM = f"{'About this program':<25}: https://github.com/separeit894/password_checker"
 
 if args.version:
     print(PASSWORD_CHECKER_PYTHON)
@@ -176,15 +169,15 @@ if args.mask:
 
 if args.command == "get":
     if args.encoding:
-        from core import MY_ENCODING
+        from core import get_encoding
 
-        print(f"Encoding used : {MY_ENCODING}")
+        print(f"Encoding used : {get_encoding()}")
         sys.exit(0)
 
     if args.file:
-        from core import PROGRESS_FILE
+        from core import get_file
 
-        print(f"File used : {PROGRESS_FILE}")
+        print(f"File used : {get_file()}")
         sys.exit(0)
 
     if args.gif:
@@ -210,7 +203,8 @@ if args.load_gif:
     sys.exit(0)
 
 THE_TEXT_ABOUT_THE_THRESHOLD_VALUE_OF_THE_LOCK = "[IMPORTANT INFO] Убедитесь в том что у вас 'Пороговое значение блокировки: 0', иначе у вас заблокируют учетную запись!\n"
-GITHUB_AUTHOR = "[IMPORTANT INFO] Автор: separeit894\n[IMPORTANT INFO] Ccылка на github: https://github.com/separeit894/\n"
+GITHUB_AUTHOR = f"[IMPORTANT INFO] {'Автор':<20}: separeit894\n[IMPORTANT INFO] {'Ccылка на github':<20}: https://github.com/separeit894/\n"
+
 print(THE_TEXT_ABOUT_THE_THRESHOLD_VALUE_OF_THE_LOCK + GITHUB_AUTHOR)
 
 users_list = list_users()
@@ -275,11 +269,23 @@ def enter_characters_for_authentication(characters):
         else:
             return str(characters)
         
-INFORMATION_ABOUT_USERNAME = f"[INFO] USERNAME : {type(username)} : value : {username}"
-INFORMATION_ABOUT_CHARACTERS = f"\r[INFO] CHARACTERS : {type(characters)} : value : {characters}"
-INFORMATION_ABOUT_WORDLIST = f"\r[INFO] WORDLIST : {type(wordlist_file)} : value : {wordlist_file}"
-INFORMATION_ABOUT_MASK = f"\r[INFO] MASK : {type(mask)} : value : {mask}"
-print(INFORMATION_ABOUT_USERNAME + "\n" + INFORMATION_ABOUT_CHARACTERS + "\n" + INFORMATION_ABOUT_MASK + "\n" + INFORMATION_ABOUT_WORDLIST)
+
+def information_about_data():
+    INFORMATION_ABOUT_USERNAME = f"[INFO] {'USERNAME':<10} : {type(username)} : value : {username}"
+    INFORMATION_ABOUT_CHARACTERS = f"\r[INFO] {'CHARACTERS':<10} : {type(characters)} : value : {characters}"
+    INFORMATION_ABOUT_WORDLIST = f"\r[INFO] {'WORDLIST':<10} : {type(wordlist_file)} : value : {wordlist_file}"
+    INFORMATION_ABOUT_MASK = f"\r[INFO] {'MASK':<10} : {type(mask)} : value : {mask}"
+
+    print(
+            INFORMATION_ABOUT_USERNAME + "\n"
+            + INFORMATION_ABOUT_CHARACTERS + "\n" 
+            + INFORMATION_ABOUT_MASK 
+            + "\n" + INFORMATION_ABOUT_WORDLIST
+        )
+
+if username and characters:
+    information_about_data()
+    
 
 if not LOAD_PROGRESS:
     if username == "":
@@ -361,10 +367,10 @@ def main():
         # Цикл будет работать, пока не найдет подходящий пароль
         while not found:
             if bl_value_wordlist:
-                with open(wordlist_file, 'r', encoding=MY_ENCODING) as f:
+                with open(wordlist_file, 'r', encoding=get_encoding()) as f:
                     with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as m:
                         for line in iter(m.readline, b''):
-                            password = line.decode(MY_ENCODING).rstrip('\n')
+                            password = line.decode(get_encoding()).rstrip('\n')
                             i = len(password)
                             found, try_id, comparsion_step_save = attempt_to_login_to_account(password, try_id, tryed, found, comparsion_step_save) 
                             if m.tell() == m.size():

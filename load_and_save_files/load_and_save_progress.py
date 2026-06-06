@@ -4,8 +4,13 @@ import os
 
 # Функция для сохранения прогресса
 def save_progress(username, print_try, characters, length, try_id, tryed, mask=None,wordlist=None,):
-    from core import MY_ENCODING
-    from core import PROGRESS_FILE
+    from core import (
+        get_file,
+        get_encoding
+    )
+    
+    PROGRESS_FILE = get_file()
+    MY_ENCODING = get_encoding()
 
     with open(PROGRESS_FILE, "w", encoding=MY_ENCODING) as f:
         json.dump(
@@ -27,8 +32,13 @@ def save_progress(username, print_try, characters, length, try_id, tryed, mask=N
 # Функция для загрузки прогресса
 def load_progress():
     try:
-        from core import MY_ENCODING
-        from core import PROGRESS_FILE
+        from core import (
+            get_encoding,
+            get_file
+        )
+        
+        PROGRESS_FILE = get_file()
+        MY_ENCODING=get_encoding()
 
         # Если файл с прогрессом существует, то он возвращает данные из этого файла
         if os.path.exists(PROGRESS_FILE):

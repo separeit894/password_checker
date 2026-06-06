@@ -1,6 +1,5 @@
 import string
 
-
 digits_progress = 0
 ascii_progress = 0
 russian_letter_progress = 0
