@@ -1,27 +1,11 @@
 import ctypes
 import win32api
 
-# Подготовка констант
-LOGON32_LOGON_INTERACTIVE = 2
-LOGON32_PROVIDER_DEFAULT = 0
-LogonUser = ctypes.windll.advapi32.LogonUserW
-
-
-# Функция для проверки пустого пароля
-def is_password_empty(username):
-    # Здесь можно использовать подход для получения пароля (например, через ваш интерфейс)
-    # Для примера положим, что у нас есть переменная password с полученным паролем
-    password = ""  # Здесь должен быть ваш метод получения пароля
-
-    if password == "":
-        return True  # Пароль пустой
-    return False  # Пароль не пустой
-
-
-def enter_username_and_password():
-    user = input("Enter name : ")
-    password = input("Enter password : ")
-    return user, password
+from core import (
+    LogonUser,
+    LOGON32_LOGON_INTERACTIVE,
+    LOGON32_PROVIDER_DEFAULT,
+)
 
 
 def authentificate_user(username: str, password: str):
@@ -47,5 +31,6 @@ def authentificate_user(username: str, password: str):
 
 
 if __name__ == "__main__":
-    username, password = enter_username_and_password()
+    username = input("Enter name : ")
+    password = input("Enter password : ")
     user_token = authentificate_user(username, password)

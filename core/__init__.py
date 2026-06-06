@@ -5,8 +5,12 @@ from .config import (
     set_encoding,
     set_file,
     get_encoding,
-    get_file
+    get_file,
+    get_exec_command_powershell,
+    set_exec_command_powershell
 )
+
+VERSION = "5.5.2"
 
 from .list_users import list_users as list_users
 
@@ -33,5 +37,8 @@ __all__ = [
     "set_file", 
     "get_file",
     "get_encoding", 
-    "LogonUser"
+    "LogonUser",
+    "VERSION",
+    "get_exec_command_powershell",
+    "set_exec_command_powershell"
 ]

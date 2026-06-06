@@ -19,8 +19,7 @@ from load_and_save_files import (
 from characters import characters_password
 
 from test import (
-    authentificate_user, 
-    enter_username_and_password
+    authentificate_user
 )
 
 EPILOG = """
@@ -42,7 +41,7 @@ bl_value_wordlist = False
 mask = ""
 bl_value_mask = False
 
-VERSION = "5.5.1"
+
 parser = argparse.ArgumentParser(description=EPILOG)
 
 subparsers = parser.add_subparsers(dest="command")
@@ -129,6 +128,13 @@ parser.add_argument(
     help="attack by mask. Example t*stin*. Where * will be replaced by another character"
 )
 
+parser.add_argument(
+    "-iecp",
+    "--ignore-exec-command-powershell",
+    action="store_true",
+    help="Removes strict verification of the user's location"
+)
+
 args = parser.parse_args()
 
 PASSWORD_CHECKER_PYTHON = f"{'Password Checker Python':<25}: Version {VERSION}"
@@ -140,8 +146,9 @@ if args.version:
     sys.exit(0)
 
 if args.test:
-    username, password = enter_username_and_password()
-    authentificate_user(username, password)
+    user = input(f"{'Enter name account':<25}: ")
+    password = input(f"{'Enter account password':<25}: ")
+    authentificate_user(user, password)
     sys.exit(0)
 
 if args.charset:
@@ -166,6 +173,9 @@ if args.wordlist:
 if args.mask:
     bl_value_mask = True
     mask = args.mask
+
+if args.ignore_exec_command_powershell:
+    set_exec_command_powershell(False)
 
 if args.command == "get":
     if args.encoding:
@@ -241,21 +251,29 @@ def enter_username_for_authentication(username):
     number = None
     find_username = True if args.user else False
 
-    # Цикл будет действовать пока find_username будет false
-    while not find_username:
-        for i, line in enumerate(users_list):
-            if number is None:
-                print(f"{i} : {line}")
-            else:
-                if number == i:
-                    username = users_list[number]
-                    print(f"[+] Учетная запись {username} найдена")
-                    find_username = True
-                    return str(username)
+    def check_find_username():
+        nonlocal number, find_username
+        # Цикл будет действовать пока find_username будет false
+        while not find_username:
+            for i, line in enumerate(users_list):
+                if number is None:
+                    print(f"{i} : {line}")
+                else:
+                    if number == i:
+                        username = users_list[number]
+                        print(f"[+] Учетная запись {username} найдена")
+                        find_username = True
+                        return str(username)
                     
-
-        if number is None:
-            number = int(input("[ ... ] Напишите номер учетной записи: "))
+            if number is None:
+                number = int(input("[ ... ] Напишите номер учетной записи: "))
+    
+    
+    if get_exec_command_powershell():
+        check_find_username()
+    else:
+        username = input("[ ... ] Enter account name : ")
+        return username
 
 
 def enter_characters_for_authentication(characters):

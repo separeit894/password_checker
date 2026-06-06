@@ -45,3 +45,11 @@ def checking_exe_or_code() -> str:
 
     return gif_path
 
+exec_command_powershell = True
+
+def set_exec_command_powershell(value: bool):
+    global exec_command_powershell
+    exec_command_powershell = value
+
+def get_exec_command_powershell() -> bool:
+    return exec_command_powershell
