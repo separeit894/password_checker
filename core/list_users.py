@@ -4,18 +4,19 @@ import sys
 from .encodings_console import get_encoding_name
 
 
-# Функция, которая будет брать список пользователь в Windows
 def list_users():
     try:
         user_list = []
 
         # Выполняем команду net user
-        encoding_result = subprocess.run(
+        run_learn_encoding = subprocess.run(
             ["cmd", "/c", "chcp"], capture_output=True, text=True, check=True
         )
-        res = encoding_result.stdout.split(": ")[1].split("\n")[0]
-        res_name = get_encoding_name(int(res))
-        UPPER_PRINT = f"[IMPORTANT INFO] The encoding used: {res} : {res_name}".upper()
+        result_learn_encoding = run_learn_encoding.stdout.split(": ")[1].split("\n")[0]
+        
+        result_learn_name_encoding = get_encoding_name(int(result_learn_encoding))
+        
+        UPPER_PRINT = f"[IMPORTANT INFO] The encoding used: {result_learn_encoding} : {result_learn_name_encoding}".upper()
         print(UPPER_PRINT)
 
         result = subprocess.run(
@@ -29,7 +30,7 @@ def list_users():
             capture_output=True,
             text=True,
             check=True,
-            encoding=res_name,
+            encoding=result_learn_name_encoding,
             errors="ignore",
         )
 
