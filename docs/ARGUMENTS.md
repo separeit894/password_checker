@@ -133,6 +133,19 @@ python main.py -w wordlist.txt
 python main.py --mask secret***
 ```
 
+### **-iecp**, **--ignore-exec-command-powershell**
+
+- **Описание**: Игнорирует строгую проверку имени пользователя
+- **Пример**
+
+```bash
+python main.py -iecp
+```
+
+```bash
+python main.py --ignore-exec-command-powershell
+```
+
 ### **get**
 
 - **Описание**: Выводит что будет использоваться, чтобы узнать
