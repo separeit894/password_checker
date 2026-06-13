@@ -1,5 +1,4 @@
-def get_encoding_name(code_page):
-    WINDOWS_CODE_PAGES = {
+WINDOWS_CODE_PAGES = {
         437: "cp437",  # US DOS
         708: "iso8859-6",  # Arabic (ASMO 708)
         709: "",  # Arabic (ASMO 449+, BCON V4)
@@ -37,5 +36,10 @@ def get_encoding_name(code_page):
         65001: "utf-8",  # UTF-8 (важно!)
     }
 
+
+def get_encoding_name(code_page):
     """Возвращает имя кодировки по номеру Windows Code Page"""
     return WINDOWS_CODE_PAGES.get(code_page)
+
+def get_dict_windows_code() -> dict:
+    return WINDOWS_CODE_PAGES

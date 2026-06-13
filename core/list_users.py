@@ -3,21 +3,30 @@ import sys
 
 from .encodings_console import get_encoding_name
 
+run_learn_encoding = None
 
 def list_users():
+    global run_learn_encoding
     try:
         user_list = []
 
-        # Выполняем команду net user
+        
         run_learn_encoding = subprocess.run(
             ["cmd", "/c", "chcp"], capture_output=True, text=True, check=True
         )
         result_learn_encoding = run_learn_encoding.stdout.split(": ")[1].split("\n")[0]
         
-        result_learn_name_encoding = get_encoding_name(int(result_learn_encoding))
+        from .config import get_console_encoding
+        console_encoding = get_console_encoding()
+        if console_encoding is None:
+            result_learn_name_encoding = get_encoding_name(int(result_learn_encoding))
+        else:
+            result_learn_encoding = int(console_encoding)
+            result_learn_name_encoding = get_encoding_name(int(console_encoding))
         
         UPPER_PRINT = f"[IMPORTANT INFO] The encoding used: {result_learn_encoding} : {result_learn_name_encoding}".upper()
         print(UPPER_PRINT)
+        
         from .config import get_exec_command_powershell
         if get_exec_command_powershell():
             result = subprocess.run(

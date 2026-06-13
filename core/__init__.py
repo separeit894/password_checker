@@ -7,10 +7,12 @@ from .config import (
     get_encoding,
     get_file,
     get_exec_command_powershell,
-    set_exec_command_powershell
+    set_exec_command_powershell,
+    set_console_encoding,
+    get_key_and_value_dict_windows_code_console
 )
 
-VERSION = "5.5.2"
+VERSION = "5.5.3"
 
 from .list_users import list_users as list_users
 
@@ -40,5 +42,7 @@ __all__ = [
     "LogonUser",
     "VERSION",
     "get_exec_command_powershell",
-    "set_exec_command_powershell"
+    "set_exec_command_powershell",
+    "set_console_encoding",
+    "get_key_and_value_dict_windows_code_console"
 ]

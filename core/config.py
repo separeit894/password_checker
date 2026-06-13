@@ -7,6 +7,43 @@ from pathlib import Path
 MY_ENCODING = "utf-8"
 PROGRESS_FILE = "progress.json"
 
+# Console Encoding
+
+console_encoding = None
+
+def set_console_encoding(value: str):
+    global console_encoding
+    from .encodings_console import get_dict_windows_code
+    Windows_Code = get_dict_windows_code()
+    console_encoding = MY_ENCODING
+    
+    find_code_encoding_console = False
+    
+    for k, v in Windows_Code.items():
+        if v == value:
+            print(f"[+] Значения совпадают: {v}")
+            console_encoding = k
+            find_code_encoding_console = not find_code_encoding_console
+    
+    if not find_code_encoding_console:
+        print("[-] Кодировка не найдена!")
+        sys.exit(1)
+    
+
+def get_console_encoding():
+    return console_encoding
+
+# Dict Windows Page
+
+def get_key_and_value_dict_windows_code_console():
+    from .encodings_console import get_dict_windows_code
+    Windows_Code = get_dict_windows_code()
+    print(f"{'KEY':<6}: VALUE")
+    for key, value in Windows_Code.items():
+        print(f"{key:<6}: {value}")
+        
+    sys.exit(0)
+
 # Logon32
 
 LOGON32_LOGON_INTERACTIVE = 2

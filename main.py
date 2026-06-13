@@ -135,6 +135,20 @@ parser.add_argument(
     help="Removes strict verification of the user's location"
 )
 
+parser.add_argument(
+    "-chcp",
+    "--chcp",
+    type=str,
+    help="Specifies the encoding to be used when outputting information about the number of users. Example: utf-8, cp1251, cp1252"
+)
+
+parser.add_argument(
+    "-lwc",
+    "--list-windows-code",
+    action="store_true",
+    help="Shows which encodings can be used for the -chcp argument."
+)
+
 args = parser.parse_args()
 
 PASSWORD_CHECKER_PYTHON = f"{'Password Checker Python':<25}: Version {VERSION}"
@@ -176,6 +190,12 @@ if args.mask:
 
 if args.ignore_exec_command_powershell:
     set_exec_command_powershell(False)
+    
+if args.chcp:
+    set_console_encoding(args.chcp)
+
+if args.list_windows_code:
+    get_key_and_value_dict_windows_code_console()
 
 if args.command == "get":
     if args.encoding:
@@ -272,7 +292,13 @@ def enter_username_for_authentication(username):
     if get_exec_command_powershell():
         check_find_username()
     else:
-        username = input("[ ... ] Enter account name : ")
+        while True:
+            username = input("[ ... ] Enter account name : ")
+            if username == "":
+                continue
+            else:
+                break
+            
         return username
 
 
