@@ -3,7 +3,7 @@ import os
 from PIL import Image
 from core import checking_exe_or_code
 
-# Отключаем надписи "pygame 2.x.x и т.д."
+# Turn off the labels ( not necessarily ) "pygame 2.x.x"
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 
@@ -11,16 +11,16 @@ import pygame
 def load_gif():
     gif_path = checking_exe_or_code()
     if gif_path.exists():
-        print("GIF файл найден!")
+        print("GIF file found!")
 
-        # Инициализация pygame
+        # init pygame
         pygame.init()
         pygame.display.set_caption("Как отключить ограничитель попыток")
 
-        # Открытие GIF с помощью Pillow
+        # open GIF with Pillow
         gif = Image.open(gif_path)
 
-        # Получение кадров
+        # Recruitment
         frames = []
         try:
             while True:
@@ -29,7 +29,7 @@ def load_gif():
         except EOFError:
             pass
 
-        # Настройка окна
+        # Configuration Window
         screen = pygame.display.set_mode(
             (gif.width, gif.height), pygame.SCALED | pygame.RESIZABLE
         )
@@ -43,22 +43,22 @@ def load_gif():
                 if event.type == pygame.QUIT:
                     running = False
 
-            # Отображение текущего кадра
-            screen.fill((0, 0, 0))  # Очистка экрана
+            # Show current frame
+            screen.fill((0, 0, 0))  # Clean Window
             frame = frames[frame_index]
             frame = pygame.image.fromstring(frame.tobytes(), frame.size, frame.mode)
             screen.blit(frame, (0, 0))
             pygame.display.flip()
 
-            # Переход к следующему кадру
+            # transition to next frame
             frame_index = (frame_index + 1) % len(frames)
             clock.tick(
                 gif.info["duration"] // 10
-            )  # Примените окончательное время между кадрами
+            )  # Apply the final time between frames.
 
         pygame.quit()
     else:
-        print("GIF файл не найден.")
+        print("GIF file not found.")
 
 
 if __name__ == "__main__":

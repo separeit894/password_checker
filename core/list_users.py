@@ -44,17 +44,12 @@ def list_users():
                 errors="ignore",
             )
 
-            # получаем список пользователей
+            # Get list username
             res_print = result.stdout.strip()
-            # Разделяем по слову, получая из этого список
+            # str -> list
             res_print_splt = res_print.splitlines()
 
-            """
-            Этот цикл нужен для того чтобы проверить есть ли пользователь 
-            у которого внутри имени есть пробел по типу 'test user'
-            если да, то он добавляет его в список 
-            """
-
+            # if username have space between word, that his append in list
             for re in res_print_splt[2:]:
                 cleaned_line = re.strip()
 
@@ -64,13 +59,13 @@ def list_users():
                 for word in words:
                     clean_word.append(word)
 
-                # Добавляем в список уже имена
+                # Append name
                 user_list.extend(clean_word)
-            # Возвращаем конечный список пользователей
+            # Return user_list
             return user_list
         
         else:
-            # Выполняем через net user
+            # Run through command `net user`
             result = subprocess.run(
                 [
                     "cmd",
@@ -87,7 +82,7 @@ def list_users():
             print(result.stdout)
 
     except subprocess.CalledProcessError as e:
-        print(f"Ошибка при выполнении команды: {e}")
+        print(f"Error executing command: {e}")
         sys.exit()
 
 

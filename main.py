@@ -353,11 +353,11 @@ else:
 found = False
 
 def result_user_account_login(username, password) -> bool:
-    # Попытка входа в систему
+    # Login attempt
     token = wintypes.HANDLE()
     result_try = LogonUser(
         username,
-        None,  # Локальная учетная запись
+        None,  # Local account
         password,
         LOGON32_LOGON_INTERACTIVE,
         LOGON32_PROVIDER_DEFAULT,
@@ -373,9 +373,8 @@ def attempt_to_login_to_account(password, try_id, tryed, found, comparsion_step_
         
         result = result_user_account_login(username, password)
         
-        # Если в файле progress.json, параметр print_try ( y )
-        succes_exit = f"\r[+] Попытка № {try_id} увенчалась успехом. Вход выполнен успешно для пароля: {password}\n"
-        bad_selection = f"\r[-] Попытка № {try_id} увенчалась ошибкой {win32api.GetLastError()} для пароля: {password}"
+        succes_exit = f"\r[+] Attempt № {try_id} was successful. Login successful for password: {password}\n"
+        bad_selection = f"\r[-] Attempt № {try_id} resulted in an error {win32api.GetLastError()} for the password: {password}"
         show_all = (print_try == "y")
         if result:
             print(succes_exit, end="")
@@ -389,11 +388,11 @@ def attempt_to_login_to_account(password, try_id, tryed, found, comparsion_step_
             tryed.append(password)
                 
         if win32api.GetLastError() == 1909:
-            ERROR_1909 = "\n   \r[ - - ] Ошибка 1909 означает, то что ваша учетная запись заблокировалась\nКонец работы"
+            ERROR_1909 = "\n   \r[ - - ] Error 1909 means that your account has been locked. Terminating operation."
             print(ERROR_1909)
             sys.exit(1909)
 
-        # Сохраняем прогресс после каждой попытки
+        # Save Progress
         if step_save == comparsion_step_save:
             save_progress(username, print_try, characters, i, try_id, tryed, mask, wordlist_file)
             comparsion_step_save = 1
@@ -408,7 +407,7 @@ def main():
     global found, i, try_id, step_save
     try:
         comparsion_step_save = 1 if not args.step else step_save
-        # Цикл будет работать, пока не найдет подходящий пароль
+        # It runs until it finds the password.
         while not found:
             if bl_value_wordlist:
                 with open(wordlist_file, 'r', encoding=get_encoding()) as f:
@@ -436,28 +435,28 @@ def main():
                 
                 for password in expand_template(mask, "*", characters):
                     found, try_id, comparsion_step_save = attempt_to_login_to_account(password, try_id, tryed, found, comparsion_step_save) 
-                print("\n[IMPORTANT INFO] Конец подбора")
+                print("\n[IMPORTANT INFO] End of selection")
                 break
             else:
-                # Циклом создаем новые пароли, characters - это тот список символов, которые вы выбрали в начале
+                # We generate new passwords using a loop; `characters` is the list of characters you selected at the beginning.
                 for password in itertools.product(characters, repeat=i):
                     password = "".join(password)
                     found, try_id, comparsion_step_save = attempt_to_login_to_account(password, try_id, tryed, found, comparsion_step_save) 
                 
                     
-            # Увеличиваем длину пароля, если не нашли подходящий
+            # Increase the password length if a suitable one was not found.
             if not found:
                 i += 1
                 
-    # Если пользователь хочет прервать процесс
+    # Process interruption
     except KeyboardInterrupt:
         save_progress(username, print_try, characters, i, try_id, tryed, mask, wordlist_file)
-        print("\n[IMPORANT INFO] Программа прервана. Прогресс сохранен.")
+        print("\n[IMPORANT INFO] Program interrupted. Progress saved.")
         os.system("pause")
 
-    # Если произошла ошибка
+    # If an error occurs
     except Exception as ex:
-        print(f"[IMPORTANT INFO] Произошла ошибка: {ex}")
+        print(f"[IMPORTANT INFO] An error occurred.: {ex}")
         os.system("pause")
 
 

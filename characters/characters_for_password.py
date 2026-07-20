@@ -9,7 +9,7 @@ punc_progress = 0
 russian_letters = "абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
 
 
-# Функция, в которой пользователь будет выбирать, те символы которые будут использоваться в подборе
+# Characters
 def characters_password(characters):
     level = 0
     req_types = [
@@ -26,30 +26,30 @@ def characters_password(characters):
         digits = str(input(f"{req_types[level - 1]}: "))
         if digits.lower() in ["y", "д"]:
             if level == 1:
-                # Добавляет цифры в список
+                # Append Digits
                 characters += string.digits
 
             if level == 2:
-                # Добавляет в список Латиницу в список
+                # Append Ascii letters
                 characters += string.ascii_letters
 
             if level == 3:
-                # Добавляет кирилицу в список
+                # Append Cyrillic letters
                 characters += russian_letters
 
             if level == 4:
-                # Добавляет специальные символы в список
+                # Append Special characters
                 characters += string.punctuation
 
         elif digits.lower() in ["n", "н"]:
-            # Пропускает
+            # Skip
             pass
         else:
-            # Если он написал что-то кроме y или n, он потребует ещё раз ввести
+            # Error
             print("[-] Вы неправильно ввели, а нужно ( y / n )!")
             level -= 1
 
-    # В итоге возвращаем список символов, которые выбрал пользователь
+    # Return string characters
     return characters
 
 

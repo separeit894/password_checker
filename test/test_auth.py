@@ -10,10 +10,10 @@ from core import (
 
 def authentificate_user(username: str, password: str):
     try:
-        token = ctypes.c_void_p()  # Создаем токен
+        token = ctypes.c_void_p()  # Create token
         result: bool = LogonUser(
             username,
-            None,  # Локальная учетная запись
+            None,  # Local account
             password,
             LOGON32_LOGON_INTERACTIVE,
             LOGON32_PROVIDER_DEFAULT,
@@ -23,11 +23,11 @@ def authentificate_user(username: str, password: str):
         if not result:
             raise Exception()
         else:
-            print(f"[+] Аутентификация пользователя {username} по паролю {password} прошла успешно.")
+            print(f"[+] User authentication {username} by password {password} It went successfully.")
 
 
     except:
-        print(f"[-] Ошибка аутентификации : {win32api.GetLastError()}")
+        print(f"[-] Error authentication : {win32api.GetLastError()}")
 
 
 if __name__ == "__main__":

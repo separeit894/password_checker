@@ -21,12 +21,12 @@ def set_console_encoding(value: str):
     
     for k, v in Windows_Code.items():
         if v == value:
-            print(f"[+] Значения совпадают: {v}")
+            print(f"[+] Value match: {v}")
             console_encoding = k
             find_code_encoding_console = not find_code_encoding_console
     
     if not find_code_encoding_console:
-        print("[-] Кодировка не найдена!")
+        print("[-] Encoding not found!")
         sys.exit(1)
     
 
