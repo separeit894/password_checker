@@ -16,7 +16,10 @@ from load_and_save_files import (
     load_gif
 )
 
-from characters import characters_password
+from characters import (
+    characters_for_password,
+    test_value_or_file
+)
 
 from test import (
     authentificate_user
@@ -62,6 +65,12 @@ parser_get.add_argument(
     help="Use if you have an executable file and the gif doesn't launch with the -load-gif (--load-gif) argument.",
 )
 
+parser_get.add_argument(
+    "--string",
+    action="store_true",
+    help="View a list of built-in symbols"
+)
+
 parser_set = subparsers.add_parser("set", help="Set item value")
 parser_set.add_argument("--encoding", type=str, help="Set the encoding to use")
 parser_set.add_argument("--file", type=str, help="Example : test.json")
@@ -80,7 +89,8 @@ parser.add_argument(
 parser.add_argument(
     "-c",
     "--charset",
-    type=str,
+    type=test_value_or_file,
+    metavar="{CHARSET|FILE}",
     help="Specifies the characters that will be used to guess the password.",
 )
 parser.add_argument(
@@ -214,6 +224,11 @@ if args.command == "get":
         from load_and_save_files import unload_gif
 
         unload_gif()
+        sys.exit(0)
+        
+    if args.string:
+        from characters import print_characters
+        print_characters()
         sys.exit(0)
 
 elif args.command == "set":

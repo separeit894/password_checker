@@ -5,18 +5,20 @@ ascii_progress = 0
 russian_letter_progress = 0
 punc_progress = 0
 
-# Кирилица
-russian_letters = "абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+# Cyrrilyc
+lowercase_russian_letters = "абвгдежзийклмнопрстуфхцчшщъыьэюя"
+uppercase_russian_letters = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+russian_letters = lowercase_russian_letters + uppercase_russian_letters
 
 
 # Characters
 def characters_password(characters):
     level = 0
     req_types = [
-        "[..] Вы хотите использовать числа для подбора: ( Y/n ) ",
-        "[..] Вы хотите использовать латинские буквы для подбора: ( Y/n ) ",
-        "[..] Вы хотите использовать кириллицу для подбора: ( Y/n ) ",
-        "[..] Вы хотите использовать специальные символы для подбора: ( Y/n ) ",
+        "[..] Do you want to use digits for selection: ( Y/n ) ",
+        "[..] Do you want to use Latin letters for selection: ( Y/n ) ",
+        "[..] Do you want to use Cyrillic for selection: ( Y/n ) ",
+        "[..] Do you want to use special characters for matching: ( Y/n ) ",
     ]
 
     while True:
@@ -46,7 +48,7 @@ def characters_password(characters):
             pass
         else:
             # Error
-            print("[-] Вы неправильно ввели, а нужно ( y / n )!")
+            print("[-] You entered it incorrectly, but it is necessary ( y / n )!")
             level -= 1
 
     # Return string characters

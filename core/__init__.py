@@ -12,7 +12,7 @@ from .config import (
     get_key_and_value_dict_windows_code_console
 )
 
-VERSION = "5.5.3"
+VERSION = "5.5.4"
 
 from .list_users import list_users as list_users
 
