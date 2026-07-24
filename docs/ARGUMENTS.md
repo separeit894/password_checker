@@ -52,10 +52,16 @@ python main.py --testAuth
 python main.py -c 0123456789
 ```
 
-2. Будут использованы числа + латинский буквы
+2. Будут использованы числа + латинскии буквы
 
 ```bash
 python main.py -c 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+```
+
+3. Будут использован файл, в котором написано какие символы брать для перебора
+
+```bash
+python main.py -c characters.txt
 ```
 
 ### **--print-try**
@@ -190,6 +196,12 @@ python main.py get --encoding
 
 ```bash 
 python main.py get --gif
+```
+
+1. Пользователь хочет получить characters, которые встроенны в программу
+
+```bash 
+python main.py get --string
 ```
 
 ### **set**
