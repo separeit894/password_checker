@@ -17,7 +17,7 @@ from load_and_save_files import (
 )
 
 from characters import (
-    characters_for_password,
+    characters_password,
     test_value_or_file
 )
 
