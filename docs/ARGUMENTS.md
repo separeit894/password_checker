@@ -198,7 +198,7 @@ python main.py get --encoding
 python main.py get --gif
 ```
 
-1. Пользователь хочет получить characters, которые встроенны в программу
+4. Пользователь хочет получить characters, которые встроенны в программу
 
 ```bash 
 python main.py get --string
